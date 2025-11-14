@@ -4,15 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="description" content="Sistema di tracciamento interventi meccanici - Tano Evoluzione"/>
-  <meta name="theme-color" content="#2563eb"/>
   <title>Tano Evoluzione - Sistema NFC</title>
-
-  <link rel="manifest" href="manifest.json"/>
-  <link rel="apple-touch-icon" href="icon-192.png"/>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- 📄 BIBLIOTHÈQUE JSPDF POUR GÉNÉRATION PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
@@ -69,7 +64,6 @@
       border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    /* 📄 STYLE POUR LES BOUTONS PDF */
     .pdf-button {
       background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
       transition: all 0.3s ease;
@@ -110,7 +104,6 @@
     window.firebaseDB = db;
     window.firebaseReady = true;
     console.log("✅ Firebase initialized");
-    
     window.dispatchEvent(new Event('firebaseReady'));
   </script>
 
@@ -118,14 +111,10 @@
     const MECHANIC_PIN = "1234";
     const USE_FIREBASE = true;
 
-    // 📋 BASE DE DONNÉES VÉHICULES COMPLETE
     const vehicleDatabase = {
       "Fiat": ["Panda", "500", "Punto", "Tipo", "Doblò", "500L", "500X", "124 Spider", "Multipla", "Bravo", "Stilo", "Croma", "Freemont", "Barchetta", "Coupe", "Ulysse", "Sedici", "Idea", "Linea", "Ducato"],
       "Alfa Romeo": ["Giulia", "Stelvio", "Giulietta", "Mito", "159", "147", "156", "166", "Brera", "Spider", "GT", "GTV", "164", "155", "33", "Alfasud", "Alfetta", "Giulietta Spider"],
       "Lancia": ["Ypsilon", "Delta", "Musa", "Phedra", "Thesis", "Lybra", "Kappa", "Zeta", "Prisma", "Dedra", "Thema"],
-      "Ferrari": ["F40", "F50", "Enzo", "LaFerrari", "296 GTB", "SF90 Stradale", "F8 Tributo", "812 Superfast", "Portofino", "Roma", "488", "458", "F430", "360", "355", "348", "Testarossa"],
-      "Lamborghini": ["Aventador", "Huracán", "Urus", "Gallardo", "Murciélago", "Diablo", "Countach", "Espada", "Jarama"],
-      "Maserati": ["Ghibli", "Levante", "Quattroporte", "GranTurismo", "GranCabrio", "Spyder", "3200 GT"],
       "BMW": ["Serie 1", "Serie 2", "Serie 3", "Serie 4", "Serie 5", "Serie 6", "Serie 7", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "Z4", "M3", "M4", "M5", "i3", "i4", "iX"],
       "Mercedes": ["Classe A", "Classe B", "Classe C", "Classe E", "Classe S", "Classe G", "GLA", "GLB", "GLC", "GLE", "GLS", "SL", "SLK", "AMG GT", "EQA", "EQC", "EQS", "Vito", "Sprinter"],
       "Audi": ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "Q2", "Q3", "Q4", "Q5", "Q7", "Q8", "TT", "R8", "e-tron"],
@@ -136,43 +125,11 @@
       "Opel": ["Corsa", "Astra", "Insignia", "Mokka", "Crossland", "Grandland", "Zafira", "Vivaro", "Movano", "GT", "Speedster"],
       "Ford": ["Fiesta", "Focus", "Mondeo", "Kuga", "Puma", "EcoSport", "Edge", "Galaxy", "S-Max", "Mustang", "Ranger", "Transit"],
       "Toyota": ["Yaris", "Corolla", "Camry", "RAV4", "C-HR", "Highlander", "Hilux", "Land Cruiser", "Supra", "Aygo", "Prius", "Mirai"],
-      "Honda": ["Civic", "Accord", "CR-V", "HR-V", "Jazz", "e", "NSX", "FR-V"],
-      "Nissan": ["Micra", "Juke", "Qashqai", "X-Trail", "Pathfinder", "Navara", "370Z", "GT-R", "Leaf", "Note", "Primera"],
-      "Mazda": ["2", "3", "6", "CX-3", "CX-30", "CX-5", "CX-60", "CX-80", "MX-5", "RX-8"],
-      "Subaru": ["Impreza", "Forester", "Outback", "XV", "Legacy", "WRX STI", "BRZ", "Justy"],
-      "Mitsubishi": ["Colt", "Lancer", "ASX", "Eclipse Cross", "Outlander", "Pajero", "Space Star", "Shogun"],
-      "Kia": ["Picanto", "Rio", "Ceed", "Sportage", "Niro", "Sorento", "EV6", "Stinger", "Optima"],
-      "Hyundai": ["i10", "i20", "i30", "Tucson", "Santa Fe", "Kona", "Ioniq", "Bayon", "Palisade", "Nexo"],
-      "Suzuki": ["Swift", "Ignis", "S-Cross", "Vitara", "Jimny", "Baleno", "Celerio"],
       "Dacia": ["Sandero", "Duster", "Lodgy", "Dokker", "Logan", "Spring", "Jogger"],
       "Jeep": ["Renegade", "Compass", "Cherokee", "Grand Cherokee", "Wrangler", "Commander"],
-      "Land Rover": ["Defender", "Discovery", "Discovery Sport", "Range Rover", "Range Rover Sport", "Range Rover Evoque", "Range Rover Velar"],
-      "Jaguar": ["XE", "XF", "XJ", "F-PACE", "E-PACE", "I-PACE", "F-TYPE"],
-      "Volvo": ["XC40", "XC60", "XC90", "S60", "S90", "V40", "V60", "V90", "C40", "EX90"],
-      "Mini": ["Cooper", "Countryman", "Clubman", "Convertible", "Paceman", "Roadster", "Coupe"],
-      "Smart": ["Fortwo", "Forfour", "Roadster", "Cabrio"],
-      "Abarth": ["500", "595", "695", "124 Spider", "Punto Evo"],
-      "Alpine": ["A110", "A310", "GTA", "V6 Turbo"],
-      "Tesla": ["Model S", "Model 3", "Model X", "Model Y", "Roadster", "Cybertruck"],
-      "Porsche": ["911", "718 Boxster", "718 Cayman", "Panamera", "Macan", "Cayenne", "Taycan", "959"],
-      "Bugatti": ["Chiron", "Veyron", "EB110", "Divo", "La Voiture Noire"],
-      "McLaren": ["720S", "570S", "P1", "F1", "Artura", "GT", "600LT"],
-      "Aston Martin": ["Vantage", "DB11", "DBS", "Rapide", "Vanquish", "DBX"],
-      "Lotus": ["Elise", "Exige", "Evora", "Emira", "Eletre"],
-      "Bentley": ["Continental", "Flying Spur", "Bentayga", "Mulsanne"],
-      "Rolls-Royce": ["Phantom", "Ghost", "Wraith", "Dawn", "Cullinan", "Spectre"],
-      "MAN": ["TGE", "TGL", "TGM", "TGS", "TGX"],
-      "IVECO": ["Daily", "Eurocargo", "Stralis", "S-Way", "X-Way", "T-Way"],
-      "Scania": ["Serie R", "Serie S", "Serie G", "Serie P", "Serie L"],
-      "Volvo Trucks": ["FH", "FM", "FMX", "FE", "FL", "VNR", "VHD", "VAH"],
-      "Mercedes-Benz Vans": ["Sprinter", "Vito", "Citan", "Vario", "Atego", "Axor", "Actros"],
-      "Renault Trucks": ["T", "C", "K", "D", "Master", "Trafic", "Kangoo"],
-      "Ford Trucks": ["F-150", "F-250", "F-350", "Ranger", "Transit", "Custom", "Connect"],
-      "Piaggio": ["Ape", "Porter", "MP3", "Beverly", "Liberty", "Zip", "Vespa", "Fly", "Carnaby", "Typhoon"],
-      "Vespa": ["Primavera", "Sprint", "GTS", "GTS Super", "Sei Giorni", "946", "Elettrica"]
+      "Volvo": ["XC40", "XC60", "XC90", "S60", "S90", "V40", "V60", "V90", "C40", "EX90"]
     };
 
-    // 📄 INFORMATIONS DU GARAGE (modifiable dans les paramètres)
     const garageInfo = {
       name: "Tano Evoluzione - Bosch Car Service",
       address: "Via Roma 123, 00100 Roma RM",
@@ -209,26 +166,20 @@
         csvExported: "CSV esportato", linkCopied: "Link copiato negli appunti", disconnected: "Disconnesso",
         logoutConfirm: "Sei sicuro di voler uscire?", interventions: "interventi", required: "*",
         selectBrand: "Seleziona Marca", selectModel: "Seleziona Modello", otherModel: "Altro (specificare)",
-        typeOilChange: "Cambio Olio", typeOilFilter: "Filtro Olio", typeAirFilter: "Filtro Aria",
-        typeFuelFilter: "Filtro Carburante", typeCabinFilter: "Filtro Abitacolo", typeSparkPlugs: "Candele",
-        typeTiming: "Distribuzione", typeBrakes: "Freni", typeTires: "Pneumatici", typeClutch: "Frizione",
-        typeInspection: "Revisione", typeAirCon: "Aria Condizionata", typeDiagnostics: "Diagnostica",
-        typeBodywork: "Carrozzeria", typeElectrical: "Elettrico/Elettrauto", typeSuspension: "Sospensioni",
-        typeExhaust: "Scarico", typeOther: "Altro",
-        // 📄 NOUVELLES TRADUCTIONS POUR PDF
+        // NOUVEAU : TRADUCTIONS CLIENT
+        clientInfo: "Informazioni Cliente", clientName: "Nome Cliente", clientPhone: "Telefono", clientEmail: "Email", typeOther: "Altro",
+        selectBrandFirst: "Seleziona prima una marca",
+        // PDF
         generateInvoice: "Genera Fattura", invoice: "Fattura", estimate: "Preventivo", documentNum: "Numero Documento",
         documentDate: "Data Documento", customer: "Cliente", mechanicSignature: "Firma Meccanico", 
         customerSignature: "Firma Cliente", total: "Totale", vat: "IVA", totalVAT: "Totale IVA Inclusa",
         notes: "Note", terms: "Condizioni: Pagamento alla consegna - Garanzia 12 mesi sui ricambi",
         thanks: "Grazie per la vostra fiducia!", invoiceType: "Tipo Documento", documentTypes: ["Fattura", "Preventivo", "Ricevuta"],
         generateGlobalInvoice: "Genera Fattura Totale", globalInvoice: "Fattura Completa",
-        print: "Stampa", download: "Scarica PDF", invoiceGenerated: "PDF generato con successo",
-        invoiceError: "Errore nella generazione del PDF",
+        print: "Stampa", download: "Scarica PDF", invoiceGenerated: "PDF generato con successo", invoiceError: "Errore nella generazione del PDF",
         whatsappMessage: "Ciao! Ecco il link per consultare lo storico del tuo veicolo",
-        emailSubject: "Storico Veicolo",
-        emailBody: "Gentile Cliente,\n\nEcco il link per consultare lo storico completo del suo veicolo",
-        emailBodyEnd: "Potrà visualizzare tutti gli interventi effettuati sul suo veicolo in qualsiasi momento.\n\nCordiali saluti,\nTano Evoluzione - Bosch Car Service",
-        shareMessage: "Tano Evoluzione - Bosch Car Service"
+        emailSubject: "Storico Veicolo", emailBody: "Gentile Cliente,\n\nEcco il link per consultare lo storico completo del suo veicolo",
+        emailBodyEnd: "Potrà visualizzare tutti gli interventi effettuati sul suo veicolo in qualsiasi momento.\n\nCordiali saluti,\nTano Evoluzione - Bosch Car Service", shareMessage: "Tano Evoluzione - Bosch Car Service"
       },
       fr: {
         appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Entrez le code:",
@@ -256,26 +207,20 @@
         csvExported: "CSV exporté", linkCopied: "Lien copié dans le presse-papiers", disconnected: "Déconnecté",
         logoutConfirm: "Êtes-vous sûr de vouloir vous déconnecter?", interventions: "interventions", required: "*",
         selectBrand: "Sélectionner Marque", selectModel: "Sélectionner Modèle", otherModel: "Autre (spécifier)",
-        typeOilChange: "Vidange", typeOilFilter: "Filtre à Huile", typeAirFilter: "Filtre à Air",
-        typeFuelFilter: "Filtre à Carburant", typeCabinFilter: "Filtre d'Habitacle", typeSparkPlugs: "Bougies",
-        typeTiming: "Distribution", typeBrakes: "Freins", typeTires: "Pneus", typeClutch: "Embrayage",
-        typeInspection: "Révision", typeAirCon: "Climatisation", typeDiagnostics: "Diagnostique",
-        typeBodywork: "Carrosserie", typeElectrical: "Électrique/Électrauto", typeSuspension: "Suspensions",
-        typeExhaust: "Échappement", typeOther: "Autre",
-        // 📄 NOUVELLES TRADUCTIONS POUR PDF
+        // NOUVEAU : TRADUCTIONS CLIENT
+        clientInfo: "Informations Client", clientName: "Nom Client", clientPhone: "Téléphone", clientEmail: "Email", typeOther: "Autre",
+        selectBrandFirst: "Sélectionnez d'abord une marque",
+        // PDF
         generateInvoice: "Générer Facture", invoice: "Facture", estimate: "Devis", documentNum: "Numéro Document",
         documentDate: "Date Document", customer: "Client", mechanicSignature: "Signature Mécanicien", 
         customerSignature: "Signature Client", total: "Total", vat: "TVA", totalVAT: "Total TVA Incluse",
         notes: "Notes", terms: "Conditions: Paiement à la livraison - Garantie 12 mois sur pièces",
         thanks: "Merci pour votre confiance!", invoiceType: "Type Document", documentTypes: ["Facture", "Devis", "Reçu"],
         generateGlobalInvoice: "Générer Facture Totale", globalInvoice: "Facture Complète",
-        print: "Imprimer", download: "Télécharger PDF", invoiceGenerated: "PDF généré avec succès",
-        invoiceError: "Erreur dans la génération du PDF",
+        print: "Imprimer", download: "Télécharger PDF", invoiceGenerated: "PDF généré avec succès", invoiceError: "Erreur dans la génération du PDF",
         whatsappMessage: "Bonjour! Voici le lien pour consulter l'historique de votre véhicule",
-        emailSubject: "Historique Véhicule",
-        emailBody: "Cher Client,\n\nVoici le lien pour consulter l'historique complet de votre véhicule",
-        emailBodyEnd: "Vous pourrez visualiser toutes les interventions effectuées sur votre véhicule à tout moment.\n\nCordialement,\nTano Evoluzione - Bosch Car Service",
-        shareMessage: "Tano Evoluzione - Bosch Car Service"
+        emailSubject: "Historique Véhicule", emailBody: "Cher Client,\n\nVoici le lien pour consulter l'historique complet de votre véhicule",
+        emailBodyEnd: "Vous pourrez visualiser toutes les interventions effectuées sur votre véhicule à tout moment.\n\nCordialement,\nTano Evoluzione - Bosch Car Service", shareMessage: "Tano Evoluzione - Bosch Car Service"
       },
       en: {
         appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Enter the code:",
@@ -303,26 +248,20 @@
         csvExported: "CSV exported", linkCopied: "Link copied to clipboard", disconnected: "Disconnected",
         logoutConfirm: "Are you sure you want to logout?", interventions: "interventions", required: "*",
         selectBrand: "Select Brand", selectModel: "Select Model", otherModel: "Other (specify)",
-        typeOilChange: "Oil Change", typeOilFilter: "Oil Filter", typeAirFilter: "Air Filter",
-        typeFuelFilter: "Fuel Filter", typeCabinFilter: "Cabin Filter", typeSparkPlugs: "Spark Plugs",
-        typeTiming: "Timing Belt", typeBrakes: "Brakes", typeTires: "Tires", typeClutch: "Clutch",
-        typeInspection: "Inspection", typeAirCon: "Air Conditioning", typeDiagnostics: "Diagnostics",
-        typeBodywork: "Bodywork", typeElectrical: "Electrical", typeSuspension: "Suspension",
-        typeExhaust: "Exhaust", typeOther: "Other",
-        // 📄 NOUVELLES TRADUCTIONS POUR PDF
+        // NOUVEAU : TRADUCTIONS CLIENT
+        clientInfo: "Client Information", clientName: "Client Name", clientPhone: "Phone", clientEmail: "Email", typeOther: "Other",
+        selectBrandFirst: "Select brand first",
+        // PDF
         generateInvoice: "Generate Invoice", invoice: "Invoice", estimate: "Estimate", documentNum: "Document Number",
         documentDate: "Document Date", customer: "Customer", mechanicSignature: "Mechanic Signature", 
         customerSignature: "Customer Signature", total: "Total", vat: "VAT", totalVAT: "Total VAT Included",
         notes: "Notes", terms: "Terms: Payment on delivery - 12 months warranty on parts",
         thanks: "Thank you for your trust!", invoiceType: "Document Type", documentTypes: ["Invoice", "Estimate", "Receipt"],
         generateGlobalInvoice: "Generate Total Invoice", globalInvoice: "Complete Invoice",
-        print: "Print", download: "Download PDF", invoiceGenerated: "PDF generated successfully",
-        invoiceError: "Error generating PDF",
+        print: "Print", download: "Download PDF", invoiceGenerated: "PDF generated successfully", invoiceError: "Error generating PDF",
         whatsappMessage: "Hello! Here is the link to view your vehicle's history",
-        emailSubject: "Vehicle History",
-        emailBody: "Dear Customer,\n\nHere is the link to view the complete history of your vehicle",
-        emailBodyEnd: "You will be able to view all the interventions carried out on your vehicle at any time.\n\nBest regards,\nTano Evoluzione - Bosch Car Service",
-        shareMessage: "Tano Evoluzione - Bosch Car Service"
+        emailSubject: "Vehicle History", emailBody: "Dear Customer,\n\nHere is the link to view the complete history of your vehicle",
+        emailBodyEnd: "You will be able to view all the interventions carried out on your vehicle at any time.\n\nBest regards,\nTano Evoluzione - Bosch Car Service", shareMessage: "Tano Evoluzione - Bosch Car Service"
       }
     };
 
@@ -517,40 +456,44 @@
       let modello = document.getElementById('newVehicleModello').value;
       const otherModello = document.getElementById('otherModelInput').value.trim();
       
-      if (modello === 'other' && otherModello) {
-        modello = otherModello;
-      }
-      
-      const anno = document.getElementById('newVehicleAnno').value.trim();
-      const km = document.getElementById('newVehicleKm').value.trim();
+      // NOUVEAU : Récupérer infos client
+      const clienteNome = document.getElementById('clienteNome').value.trim();
+      const clienteTelefono = document.getElementById('clienteTelefono').value.trim();
+      const clienteEmail = document.getElementById('clienteEmail').value.trim();
       
       if (!targa) return showNotification(`❌ ${t('plateRequired')}`, 'error');
       if (!marca) return showNotification(`❌ ${t('brand')} ${t('required')}`, 'error');
       if (!modello) return showNotification(`❌ ${t('model')} ${t('required')}`, 'error');
+      if (!clienteNome) return showNotification(`❌ ${t('clientName')} ${t('required')}`, 'error');
       if (vehicles[targa]) return showNotification(`❌ ${t('vehicleExists')}`, 'error');
+      
+      if (modello === 'other' && otherModello) {
+        modello = otherModello;
+      }
       
       const vehicleData = { 
         targa, 
         marca, 
         modello, 
-        anno, 
-        chilometraggio: km, 
+        anno: document.getElementById('newVehicleAnno').value.trim(), 
+        chilometraggio: document.getElementById('newVehicleKm').value.trim(), 
+        cliente: {
+          nome: clienteNome,
+          telefono: clienteTelefono,
+          email: clienteEmail
+        },
         interventi: [], 
         clientCode: generateClientCode(targa), 
         createdAt: new Date().toISOString() 
       };
+      
       vehicles[targa] = vehicleData;
       saveDataLocal();
       
-      try {
-        document.getElementById('newVehicleTarga').value = '';
-        document.getElementById('newVehicleMarca').value = '';
-        document.getElementById('newVehicleModello').innerHTML = '';
-        document.getElementById('newVehicleModello').disabled = true;
-        document.getElementById('otherModelInput').style.display = 'none';
-        document.getElementById('newVehicleAnno').value = '';
-        document.getElementById('newVehicleKm').value = '';
-      } catch(e) {}
+      // Vider les champs
+      ['newVehicleTarga', 'newVehicleAnno', 'newVehicleKm', 'clienteNome', 'clienteTelefono', 'clienteEmail'].forEach(id => {
+        document.getElementById(id) && (document.getElementById(id).value = '');
+      });
       
       showNotification(`✅ ${t('vehicleAdded')}`);
       if (USE_FIREBASE) syncToFirestore(targa, vehicleData).catch(err => {});
@@ -646,7 +589,8 @@
       return Object.values(vehicles).filter(v =>
         v.targa.toLowerCase().includes(searchQuery) ||
         (v.marca && v.marca.toLowerCase().includes(searchQuery)) ||
-        (v.modello && v.modello.toLowerCase().includes(searchQuery))
+        (v.modello && v.modello.toLowerCase().includes(searchQuery)) ||
+        (v.cliente?.nome && v.cliente.nome.toLowerCase().includes(searchQuery)) // NOUVEAU : Recherche par nom client
       );
     }
 
@@ -673,20 +617,17 @@
       return { totalCosto, count: interventi.length };
     }
 
-    // 📄 FONCTION DE GÉNÉRATION PDF
     function generateInvoice(interventoId = null) {
       try {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        // En-tête avec logo et infos garage
-        doc.setFillColor(37, 99, 235); // Bleu Tano
+        doc.setFillColor(37, 99, 235);
         doc.rect(0, 0, 210, 40, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(20);
         doc.text(garageInfo.name, 20, 25);
         
-        // Infos garage
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(10);
         doc.text(garageInfo.address, 20, 50);
@@ -694,74 +635,57 @@
         doc.text(`Email: ${garageInfo.email}`, 20, 62);
         doc.text(`P.IVA: ${garageInfo.vatNumber}`, 20, 68);
         
-        // Titre document
         const isGlobal = !interventoId;
         const documentType = isGlobal ? t('globalInvoice') : t('invoice');
         doc.setFontSize(16);
         doc.setTextColor(37, 99, 235);
         doc.text(documentType, 20, 85);
         
-        // Infos véhicule et client
         const vehicle = vehicles[currentVehicle];
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(12);
         doc.text(`${t('vehicle')}: ${vehicle.targa}`, 20, 100);
         doc.text(`${vehicle.marca} ${vehicle.modello} ${vehicle.anno ? `(${vehicle.anno})` : ''}`, 20, 107);
         
-        // Tableau des interventions
-        const headers = [
-          [t('date'), t('type'), t('description'), t('parts'), t('cost') + ' (€)']
-        ];
+        // NOUVEAU : Ajouter infos client sur PDF
+        if (vehicle.cliente?.nome) {
+          doc.text(`${t('customer')}: ${vehicle.cliente.nome}`, 20, 114);
+          if (vehicle.cliente.telefono) doc.text(`Tel: ${vehicle.cliente.telefono}`, 20, 121);
+        }
         
+        const headers = [[t('date'), t('type'), t('description'), t('parts'), t('cost') + ' (€)']];
         const body = [];
         let total = 0;
         
         if (isGlobal) {
-          // Facture globale avec toutes les interventions
           vehicle.interventi.forEach(inter => {
             const cost = parseFloat(inter.costo) || 0;
             total += cost;
-            body.push([
-              inter.data || '',
-              inter.tipo || '',
-              inter.descrizione || '',
-              inter.ricambi || '',
-              cost.toFixed(2)
-            ]);
+            body.push([inter.data || '', inter.tipo || '', inter.descrizione || '', inter.ricambi || '', cost.toFixed(2)]);
           });
         } else {
-          // Facture pour une seule intervention
           const inter = vehicle.interventi.find(i => i.id === interventoId);
           if (inter) {
             const cost = parseFloat(inter.costo) || 0;
             total = cost;
-            body.push([
-              inter.data || '',
-              inter.tipo || '',
-              inter.descrizione || '',
-              inter.ricambi || '',
-              cost.toFixed(2)
-            ]);
+            body.push([inter.data || '', inter.tipo || '', inter.descrizione || '', inter.ricambi || '', cost.toFixed(2)]);
           }
         }
         
-        // Ajouter tableau
         doc.autoTable({
           head: headers,
           body: body,
-          startY: 120,
+          startY: vehicle.cliente?.nome ? 130 : 120,
           theme: 'grid',
           headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
           styles: { fontSize: 10 }
         });
         
-        // Total
         const finalY = doc.previousAutoTable.finalY || 120;
         doc.setFontSize(14);
         doc.setFont(undefined, 'bold');
         doc.text(`${t('total')}: €${total.toFixed(2)}`, 20, finalY + 15);
         
-        // TVA (exemple 22%)
         const vatRate = 0.22;
         const vat = total * vatRate;
         const totalVAT = total + vat;
@@ -772,37 +696,29 @@
         doc.setFont(undefined, 'bold');
         doc.text(`${t('totalVAT')}: €${totalVAT.toFixed(2)}`, 20, finalY + 35);
         
-        // Notes et conditions
         doc.setFontSize(10);
         doc.setFont(undefined, 'normal');
         const notes = vehicle.interventi.find(i => i.id === interventoId)?.note || '';
-        if (notes) {
-          doc.text(`${t('notes')}: ${notes}`, 20, finalY + 50);
-        }
+        if (notes) doc.text(`${t('notes')}: ${notes}`, 20, finalY + 50);
         doc.text(t('terms'), 20, finalY + 60, { maxWidth: 170 });
         doc.text(t('thanks'), 20, finalY + 75);
         
-        // Signatures
         doc.text('_______________________', 20, finalY + 100);
         doc.text(t('mechanicSignature'), 20, finalY + 105);
         doc.text('_______________________', 110, finalY + 100);
         doc.text(t('customerSignature'), 110, finalY + 105);
         
-        // Pied de page
         doc.setFillColor(37, 99, 235);
         doc.rect(0, 280, 210, 20, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(8);
         doc.text(garageInfo.website, 105, 288, { align: 'center' });
         
-        // Télécharger le PDF
         const fileName = `${vehicle.targa}_${isGlobal ? 'global' : 'intervention_' + interventoId}_${new Date().toISOString().split('T')[0]}.pdf`;
         doc.save(fileName);
-        
         showNotification(`📄 ${t('invoiceGenerated')}`);
-        
       } catch (error) {
-        console.error('PDF Generation Error:', error);
+        console.error('PDF Error:', error);
         showNotification(`❌ ${t('invoiceError')}`, 'error');
       }
     }
@@ -825,7 +741,9 @@
               </div>
               <div class="text-center mb-4">
                 <p class="text-gray-300 mb-2">${t('vehicle')}: <strong class="text-white">${shareModalTarga}</strong></p>
-                <p class="text-gray-400 text-sm">${vehicle.marca || ''} ${vehicle.modello || ''}</p>
+                <p class="text-gray-400">${vehicle.marca || ''} ${vehicle.modello || ''}</p>
+                <!-- NOUVEAU : Infos client dans le modal -->
+                ${vehicle.cliente?.nome ? `<div class="bg-gray-800 p-2 rounded mt-2"><p class="text-sm text-blue-400 font-semibold">👤 ${vehicle.cliente.nome}</p>${vehicle.cliente.telefono ? `<p class="text-xs text-gray-500">📞 ${vehicle.cliente.telefono}</p>` : ''}${vehicle.cliente.email ? `<p class="text-xs text-gray-500">✉️ ${vehicle.cliente.email}</p>` : ''}</div>` : ''}
               </div>
               <div id="qrcode"></div>
               <div class="bg-gray-800 p-3 rounded mb-4">
@@ -898,6 +816,7 @@
               <div class="bg-white rounded-lg shadow p-4 mb-4">
                 <h2 class="text-lg font-bold mb-3">➕ ${t('newVehicle')}</h2>
                 <div class="space-y-3">
+                  <!-- Infos véhicule -->
                   <input type="text" id="newVehicleTarga" placeholder="${t('plate')} *" class="w-full px-3 py-2 border rounded uppercase font-bold">
                   
                   <select id="newVehicleMarca" onchange="updateModels()" class="w-full px-3 py-2 border rounded bg-gray-800 text-white border-gray-600">
@@ -917,6 +836,15 @@
                     <input type="number" id="newVehicleAnno" placeholder="${t('year')}" class="px-3 py-2 border rounded">
                     <input type="number" id="newVehicleKm" placeholder="${t('mileage')}" class="px-3 py-2 border rounded">
                   </div>
+                  
+                  <!-- NOUVEAU : Infos client -->
+                  <div class="border-t border-gray-600 pt-3 mt-3">
+                    <h3 class="text-sm font-semibold text-gray-300 mb-2">👤 ${t('clientInfo')}</h3>
+                    <input type="text" id="clienteNome" placeholder="${t('clientName')} *" class="w-full px-3 py-2 border rounded mb-2">
+                    <input type="tel" id="clienteTelefono" placeholder="${t('clientPhone')}" class="w-full px-3 py-2 border rounded mb-2">
+                    <input type="email" id="clienteEmail" placeholder="${t('clientEmail')}" class="w-full px-3 py-2 border rounded">
+                  </div>
+                  
                   <button onclick="addVehicle()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">${t('addVehicle')}</button>
                 </div>
               </div>
@@ -932,6 +860,9 @@
                             <span class="text-xl font-bold">${v.targa}</span>
                             <p class="text-gray-400">${v.marca || ''} ${v.modello || ''} ${v.anno ? `(${v.anno})` : ''}</p>
                             ${v.chilometraggio ? `<p class="text-sm text-gray-500">📍 ${v.chilometraggio} km</p>` : ''}
+                            <!-- NOUVEAU : Affichage infos client -->
+                            ${v.cliente?.nome ? `<p class="text-sm font-semibold text-blue-400 mt-1">👤 ${v.cliente.nome}</p>` : ''}
+                            ${v.cliente?.telefono ? `<p class="text-xs text-gray-500">📞 ${v.cliente.telefono}</p>` : ''}
                             <p class="text-xs text-gray-500 mt-1">${stats.count} ${t('interventions')} • €${stats.totalCosto.toFixed(2)}</p>
                           </div>
                           <div class="flex gap-2">
@@ -971,6 +902,8 @@
                   <h1 class="text-2xl font-bold">${vehicle.targa}</h1>
                   <p class="text-blue-100">${vehicle.marca || ''} ${vehicle.modello || ''} ${vehicle.anno ? `(${vehicle.anno})` : ''}</p>
                   ${vehicle.chilometraggio ? `<p class="text-sm text-blue-100">📍 ${vehicle.chilometraggio} km</p>` : ''}
+                  <!-- NOUVEAU : Infos client dans l'en-tête -->
+                  ${vehicle.cliente?.nome ? `<p class="text-sm text-blue-100 mt-1">👤 ${vehicle.cliente.nome}</p>` : ''}
                 </div>
               </div>
             </div>
@@ -1093,12 +1026,6 @@
           }
         }
       }
-    }
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js').catch(err => {});
-      });
     }
 
     init();
