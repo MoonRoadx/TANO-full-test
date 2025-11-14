@@ -10,6 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     html, body { height: 100%; margin: 0; }
@@ -72,9 +73,20 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
     }
+    .offline-indicator {
+      position: fixed; bottom: 20px; left: 20px; padding: 12px 20px; background: rgba(245, 158, 11, 0.9);
+      color: white; border-radius: 8px; font-weight: bold; z-index: 1001; animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .tag {
+      display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 5px; margin-bottom: 5px;
+    }
+    .tag-urgent { background: #dc2626; color: white; }
+    .tag-warranty { background: #059669; color: white; }
+    .tag-recurring { background: #2563eb; color: white; }
+    .tag-parts { background: #7c3aed; color: white; }
   </style>
 </head>
-
 <body>
   <div id="app">
     <div class="min-h-screen flex items-center justify-center">
@@ -87,10 +99,10 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+    import { getFirestore, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBiU0hQ_xfHBLlGHh0vbeZpBAc1uoRz554",
+      apiKey: "AIzaSyBiU0Q_xfHBLlGHh0vbeZpBAc1uoRz554",
       authDomain: "tano-client-serveur.firebaseapp.com",
       projectId: "tano-client-serveur",
       storageBucket: "tano-client-serveur.firebasestorage.app",
@@ -100,6 +112,14 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    
+    // Activer la persistance hors ligne
+    try {
+      await enableIndexedDbPersistence(db);
+      console.log("✅ Mode hors ligne activé");
+    } catch (err) {
+      console.log("⚠️ Erreur persistance:", err.code);
+    }
     
     window.firebaseDB = db;
     window.firebaseReady = true;
@@ -166,28 +186,15 @@
         csvExported: "CSV esportato", linkCopied: "Link copiato negli appunti", disconnected: "Disconnesso",
         logoutConfirm: "Sei sicuro di voler uscire?", interventions: "interventi", required: "*",
         selectBrand: "Seleziona Marca", selectModel: "Seleziona Modello", otherModel: "Altro (specificare)",
-        // TRADUCTIONS CLIENT
-        clientInfo: "Informazioni Cliente", clientName: "Nome Cliente", clientPhone: "Telefono", clientEmail: "Email", typeOther: "Altro",
-        selectBrandFirst: "Seleziona prima una marca",
-        // TRADUCTIONS PHOTOS
-        photos: "Foto", optional: "Opzionale",
-        // TRADUCTIONS RDV
-        appointments: "Appuntamenti", newAppointment: "Nuovo Appuntamento", appointmentDate: "Data Appuntamento", 
-        appointmentTime: "Ora", appointmentType: "Tipo Intervento", appointmentNotes: "Note Appuntamento", 
-        status: "Stato", statusBooked: "Prenotato", statusCompleted: "Completato", statusCancelled: "Cancellato",
-        addAppointment: "Aggiungi Appuntamento", noAppointments: "Nessun appuntamento programmato",
-        appointmentAdded: "Appuntamento aggiunto con successo", appointmentDeleted: "Appuntamento eliminato",
-        // PDF
-        generateInvoice: "Genera Fattura", invoice: "Fattura", estimate: "Preventivo", documentNum: "Numero Documento",
-        documentDate: "Data Documento", customer: "Cliente", mechanicSignature: "Firma Meccanico", 
-        customerSignature: "Firma Cliente", total: "Totale", vat: "IVA", totalVAT: "Totale IVA Inclusa",
-        notes: "Note", terms: "Condizioni: Pagamento alla consegna - Garanzia 12 mesi sui ricambi",
-        thanks: "Grazie per la vostra fiducia!", invoiceType: "Tipo Documento", documentTypes: ["Fattura", "Preventivo", "Ricevuta"],
-        generateGlobalInvoice: "Genera Fattura Totale", globalInvoice: "Fattura Completa",
-        print: "Stampa", download: "Scarica PDF", invoiceGenerated: "PDF generato con successo", invoiceError: "Errore nella generazione del PDF",
-        whatsappMessage: "Ciao! Ecco il link per consultare lo storico del tuo veicolo",
-        emailSubject: "Storico Veicolo", emailBody: "Gentile Cliente,\n\nEcco il link per consultare lo storico completo del suo veicolo",
-        emailBodyEnd: "Potrà visualizzare tutti gli interventi effettuati sul suo veicolo in qualsiasi momento.\n\nCordiali saluti,\nTano Evoluzione - Bosch Car Service", shareMessage: "Tano Evoluzione - Bosch Car Service"
+        // NOUVELLES TRADUCTIONS
+        dashboard: "Dashboard", totalRevenue: "Ricavi Totali", monthlyStats: "Statistiche Mensili", topCustomers: "Top Clienti",
+        searchAdvanced: "Ricerca Avanzata", searchByDate: "Data da", searchByType: "Tipo", searchByMechanic: "Meccanico",
+        searchByCost: "Costo min", searchByCostMax: "Costo max", applyFilter: "Applica Filtri", resetFilter: "Reset",
+        noResults: "Nessun risultato", tags: "Tag", addTag: "Aggiungi tag", tagUrgent: "Urgente", tagWarranty: "Garanzia",
+        tagRecurring: "Ricorrente", tagParts: "Attesa Ricambi", offlineMode: "Modo Offline", offlineMessage: "Dati salvati localmente",
+        reminders: "Promemoria", reminderOilChange: "Prossimo tagliando", reminderInspection: "Prossima revisione",
+        reminderInsurance: "Assicurazione in scadenza", days: "giorni", plateInvalid: "Formato targa non valido",
+        emailInvalid: "Email non valida", phoneInvalid: "Telefono non valido", stats: "Statistiche"
       },
       fr: {
         appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Entrez le code:",
@@ -215,28 +222,15 @@
         csvExported: "CSV exporté", linkCopied: "Lien copié dans le presse-papiers", disconnected: "Déconnecté",
         logoutConfirm: "Êtes-vous sûr de vouloir vous déconnecter?", interventions: "interventions", required: "*",
         selectBrand: "Sélectionner Marque", selectModel: "Sélectionner Modèle", otherModel: "Autre (spécifier)",
-        // TRADUCTIONS CLIENT
-        clientInfo: "Informations Client", clientName: "Nom Client", clientPhone: "Téléphone", clientEmail: "Email", typeOther: "Autre",
-        selectBrandFirst: "Sélectionnez d'abord une marque",
-        // TRADUCTIONS PHOTOS
-        photos: "Photos", optional: "Optionnel",
-        // TRADUCTIONS RDV
-        appointments: "Rendez-vous", newAppointment: "Nouveau Rendez-vous", appointmentDate: "Date RDV",
-        appointmentTime: "Heure", appointmentType: "Type d'intervention", appointmentNotes: "Notes RDV",
-        status: "Statut", statusBooked: "Réservé", statusCompleted: "Terminé", statusCancelled: "Annulé",
-        addAppointment: "Ajouter RDV", noAppointments: "Aucun rendez-vous programmé",
-        appointmentAdded: "Rendez-vous ajouté", appointmentDeleted: "Rendez-vous supprimé",
-        // PDF
-        generateInvoice: "Générer Facture", invoice: "Facture", estimate: "Devis", documentNum: "Numéro Document",
-        documentDate: "Date Document", customer: "Client", mechanicSignature: "Signature Mécanicien", 
-        customerSignature: "Signature Client", total: "Total", vat: "TVA", totalVAT: "Total TVA Incluse",
-        notes: "Notes", terms: "Conditions: Paiement à la livraison - Garantie 12 mois sur pièces",
-        thanks: "Merci pour votre confiance!", invoiceType: "Type Document", documentTypes: ["Facture", "Devis", "Reçu"],
-        generateGlobalInvoice: "Générer Facture Totale", globalInvoice: "Facture Complète",
-        print: "Imprimer", download: "Télécharger PDF", invoiceGenerated: "PDF généré avec succès", invoiceError: "Erreur dans la génération du PDF",
-        whatsappMessage: "Bonjour! Voici le lien pour consulter l'historique de votre véhicule",
-        emailSubject: "Historique Véhicule", emailBody: "Cher Client,\n\nVoici le lien pour consulter l'historique complet de votre véhicule",
-        emailBodyEnd: "Vous pourrez visualiser toutes les interventions effectuées sur votre véhicule à tout moment.\n\nCordialement,\nTano Evoluzione - Bosch Car Service", shareMessage: "Tano Evoluzione - Bosch Car Service"
+        // NOUVELLES TRADUCTIONS
+        dashboard: "Tableau de Bord", totalRevenue: "Revenus Totaux", monthlyStats: "Statistiques Mensuelles", topCustomers: "Top Clients",
+        searchAdvanced: "Recherche Avancée", searchByDate: "Date du", searchByType: "Type", searchByMechanic: "Mécanicien",
+        searchByCost: "Coût min", searchByCostMax: "Coût max", applyFilter: "Appliquer Filtres", resetFilter: "Réinitialiser",
+        noResults: "Aucun résultat", tags: "Tags", addTag: "Ajouter tag", tagUrgent: "Urgent", tagWarranty: "Garantie",
+        tagRecurring: "Récurrent", tagParts: "Attente Pièces", offlineMode: "Mode Hors Ligne", offlineMessage: "Données sauvées localement",
+        reminders: "Rappels", reminderOilChange: "Prochain vidange", reminderInspection: "Prochaine révision",
+        reminderInsurance: "Assurance à échéance", days: "jours", plateInvalid: "Format plaque non valide",
+        emailInvalid: "Email non valide", phoneInvalid: "Téléphone non valide", stats: "Statistiques"
       },
       en: {
         appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Enter the code:",
@@ -264,28 +258,15 @@
         csvExported: "CSV exported", linkCopied: "Link copied to clipboard", disconnected: "Disconnected",
         logoutConfirm: "Are you sure you want to logout?", interventions: "interventions", required: "*",
         selectBrand: "Select Brand", selectModel: "Select Model", otherModel: "Other (specify)",
-        // TRADUCTIONS CLIENT
-        clientInfo: "Client Information", clientName: "Client Name", clientPhone: "Phone", clientEmail: "Email", typeOther: "Other",
-        selectBrandFirst: "Select brand first",
-        // TRADUCTIONS PHOTOS
-        photos: "Photos", optional: "Optional",
-        // TRADUCTIONS RDV
-        appointments: "Appointments", newAppointment: "New Appointment", appointmentDate: "Appointment Date",
-        appointmentTime: "Time", appointmentType: "Service Type", appointmentNotes: "Appointment Notes",
-        status: "Status", statusBooked: "Booked", statusCompleted: "Completed", statusCancelled: "Cancelled",
-        addAppointment: "Add Appointment", noAppointments: "No appointments scheduled",
-        appointmentAdded: "Appointment added", appointmentDeleted: "Appointment deleted",
-        // PDF
-        generateInvoice: "Generate Invoice", invoice: "Invoice", estimate: "Estimate", documentNum: "Document Number",
-        documentDate: "Document Date", customer: "Customer", mechanicSignature: "Mechanic Signature", 
-        customerSignature: "Customer Signature", total: "Total", vat: "VAT", totalVAT: "Total VAT Included",
-        notes: "Notes", terms: "Terms: Payment on delivery - 12 months warranty on parts",
-        thanks: "Thank you for your trust!", invoiceType: "Document Type", documentTypes: ["Invoice", "Estimate", "Receipt"],
-        generateGlobalInvoice: "Generate Total Invoice", globalInvoice: "Complete Invoice",
-        print: "Print", download: "Download PDF", invoiceGenerated: "PDF generated successfully", invoiceError: "Error generating PDF",
-        whatsappMessage: "Hello! Here is the link to view your vehicle's history",
-        emailSubject: "Vehicle History", emailBody: "Dear Customer,\n\nHere is the link to view the complete history of your vehicle",
-        emailBodyEnd: "You will be able to view all the interventions carried out on your vehicle at any time.\n\nBest regards,\nTano Evoluzione - Bosch Car Service", shareMessage: "Tano Evoluzione - Bosch Car Service"
+        // NOUVELLES TRADUCTIONS
+        dashboard: "Dashboard", totalRevenue: "Total Revenue", monthlyStats: "Monthly Stats", topCustomers: "Top Customers",
+        searchAdvanced: "Advanced Search", searchByDate: "Date from", searchByType: "Type", searchByMechanic: "Mechanic",
+        searchByCost: "Min cost", searchByCostMax: "Max cost", applyFilter: "Apply Filters", resetFilter: "Reset",
+        noResults: "No results", tags: "Tags", addTag: "Add tag", tagUrgent: "Urgent", tagWarranty: "Warranty",
+        tagRecurring: "Recurring", tagParts: "Waiting Parts", offlineMode: "Offline Mode", offlineMessage: "Data saved locally",
+        reminders: "Reminders", reminderOilChange: "Next oil change", reminderInspection: "Next inspection",
+        reminderInsurance: "Insurance expiry", days: "days", plateInvalid: "Invalid plate format",
+        emailInvalid: "Invalid email", phoneInvalid: "Invalid phone", stats: "Statistics"
       }
     };
 
@@ -302,6 +283,9 @@
 
     let vehicles = {}, currentVehicle = null, showAddForm = false, isMechanicMode = false, isClientMode = false;
     let showLoginScreen = true, searchQuery = '', showShareModal = false, shareModalTarga = null, realtimeUnsubscribe = null, showAppointmentForm = false;
+    // NOUVELLES VARIABLES
+    let showDashboard = false, showAdvancedSearch = false, filters = { date: '', type: '', mechanic: '', costMin: '', costMax: '' };
+    let isOffline = !navigator.onLine;
 
     function showNotification(message, type = 'success') {
       const notification = document.createElement('div');
@@ -309,6 +293,19 @@
       notification.textContent = message;
       document.body.appendChild(notification);
       setTimeout(() => { notification.style.animation = 'slideIn 0.3s ease-out reverse'; setTimeout(() => notification.remove(), 300); }, 3000);
+    }
+
+    function showOfflineIndicator() {
+      if (isOffline && isMechanicMode) {
+        const indicator = document.createElement('div');
+        indicator.className = 'offline-indicator';
+        indicator.innerHTML = `⚠️ ${t('offlineMode')} - ${t('offlineMessage')}`;
+        indicator.id = 'offlineIndicator';
+        document.body.appendChild(indicator);
+      } else {
+        const indicator = document.getElementById('offlineIndicator');
+        if (indicator) indicator.remove();
+      }
     }
 
     function generateClientCode(targa) { return `${targa}-${new Date().getFullYear()}`; }
@@ -330,7 +327,11 @@
       try {
         const { setDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
         await setDoc(doc(window.firebaseDB, 'vehicles', targa), vehicleData);
-      } catch (error) { showNotification('⚠️ Sync error, but saved locally', 'error'); }
+      } catch (error) { 
+        showNotification('⚠️ Sync error, but saved locally', 'error');
+        isOffline = true;
+        showOfflineIndicator();
+      }
     }
 
     async function loadFromFirestore(targa) {
@@ -339,7 +340,11 @@
         const { getDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
         const docSnap = await getDoc(doc(window.firebaseDB, 'vehicles', targa));
         return docSnap.exists() ? docSnap.data() : null;
-      } catch (error) { return null; }
+      } catch (error) { 
+        isOffline = true;
+        showOfflineIndicator();
+        return null;
+      }
     }
 
     async function deleteFromFirestore(targa) {
@@ -363,6 +368,10 @@
           });
           saveDataLocal();
           if (!showLoginScreen) render();
+        }, (error) => {
+          isOffline = true;
+          showOfflineIndicator();
+          loadDataLocal();
         });
       } catch (error) { loadDataLocal(); }
     }
@@ -375,6 +384,40 @@
     }
     function saveDataLocal() {
       try { localStorage.setItem('garage_vehicles', JSON.stringify(vehicles)); } catch (error) {}
+    }
+
+    // NOUVELLES FONCTIONS DE VALIDATION
+    function validatePlate(targa) {
+      const pattern = /^[A-Z0-9]{2,3}[A-Z0-9]{2,3}[A-Z0-9]{2,3}$/i;
+      return pattern.test(targa);
+    }
+
+    function validateEmail(email) {
+      const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return pattern.test(email);
+    }
+
+    function validatePhone(phone) {
+      const pattern = /^\+?[0-9\s\-()]{10,}$/i;
+      return pattern.test(phone);
+    }
+
+    function getReminders(targa) {
+      const vehicle = vehicles[targa];
+      const reminders = [];
+      const today = new Date();
+      
+      vehicle.interventi?.forEach(inter => {
+        if (inter.tipo === 'Tagliando' && inter.chilometraggio) {
+          const nextKm = parseInt(inter.chilometraggio) + 15000;
+          const currentKm = parseInt(vehicle.chilometraggio || 0);
+          if (currentKm >= nextKm - 1000) {
+            reminders.push({ type: 'oilChange', message: `${t('reminderOilChange')} (${nextKm} km)`, urgency: 'high' });
+          }
+        }
+      });
+      
+      return reminders;
     }
 
     async function login() {
@@ -410,7 +453,7 @@
       if (confirm(t('logoutConfirm'))) {
         if (realtimeUnsubscribe) { realtimeUnsubscribe(); realtimeUnsubscribe = null; }
         isMechanicMode = false; isClientMode = false; showLoginScreen = true; currentVehicle = null;
-        showAddForm = false; searchQuery = ''; showAppointmentForm = false;
+        showAddForm = false; searchQuery = ''; showAppointmentForm = false; showDashboard = false; showAdvancedSearch = false;
         showNotification(`👋 ${t('disconnected')}`);
         render();
       }
@@ -480,15 +523,17 @@
       let modello = document.getElementById('newVehicleModello').value;
       const otherModello = document.getElementById('otherModelInput').value.trim();
       
-      // Récupérer infos client
       const clienteNome = document.getElementById('clienteNome').value.trim();
       const clienteTelefono = document.getElementById('clienteTelefono').value.trim();
       const clienteEmail = document.getElementById('clienteEmail').value.trim();
       
       if (!targa) return showNotification(`❌ ${t('plateRequired')}`, 'error');
+      if (!validatePlate(targa)) return showNotification(`❌ ${t('plateInvalid')}`, 'error');
       if (!marca) return showNotification(`❌ ${t('brand')} ${t('required')}`, 'error');
       if (!modello) return showNotification(`❌ ${t('model')} ${t('required')}`, 'error');
       if (!clienteNome) return showNotification(`❌ ${t('clientName')} ${t('required')}`, 'error');
+      if (clienteEmail && !validateEmail(clienteEmail)) return showNotification(`❌ ${t('emailInvalid')}`, 'error');
+      if (clienteTelefono && !validatePhone(clienteTelefono)) return showNotification(`❌ ${t('phoneInvalid')}`, 'error');
       if (vehicles[targa]) return showNotification(`❌ ${t('vehicleExists')}`, 'error');
       
       if (modello === 'other' && otherModello) {
@@ -507,15 +552,15 @@
           email: clienteEmail
         },
         interventi: [], 
-        appuntamenti: [], // NOUVEAU : Tableau des RDV
+        appuntamenti: [],
         clientCode: generateClientCode(targa), 
-        createdAt: new Date().toISOString() 
+        createdAt: new Date().toISOString(),
+        tags: []
       };
       
       vehicles[targa] = vehicleData;
       saveDataLocal();
       
-      // Vider les champs
       ['newVehicleTarga', 'newVehicleAnno', 'newVehicleKm', 'clienteNome', 'clienteTelefono', 'clienteEmail'].forEach(id => {
         document.getElementById(id) && (document.getElementById(id).value = '');
       });
@@ -536,8 +581,8 @@
       const km = document.getElementById('interventoKm').value;
       const meccanico = document.getElementById('interventoMeccanico').value.trim();
       const note = document.getElementById('interventoNote').value.trim();
+      const tags = Array.from(document.querySelectorAll('.tag-checkbox:checked')).map(cb => cb.value);
       
-      // Récupérer les photos encodées en base64
       const photos = [];
       const previewImages = document.querySelectorAll('#photoPreview img');
       previewImages.forEach(img => photos.push(img.src));
@@ -554,7 +599,8 @@
         chilometraggio: km, 
         meccanico, 
         note, 
-        photos: photos, // Sauvegarde des photos
+        photos,
+        tags,
         timestamp: new Date().toISOString() 
       };
       
@@ -681,6 +727,32 @@
       );
     }
 
+    // NOUVELLE FONCTION : Recherche avancée
+    function getFilteredInterventions() {
+      const vehicle = vehicles[currentVehicle];
+      let interventions = vehicle.interventi || [];
+      
+      if (showAdvancedSearch) {
+        if (filters.date) {
+          interventions = interventions.filter(i => i.data >= filters.date);
+        }
+        if (filters.type) {
+          interventions = interventions.filter(i => i.tipo === filters.type);
+        }
+        if (filters.mechanic) {
+          interventions = interventions.filter(i => i.meccanico && i.meccanico.toLowerCase().includes(filters.mechanic.toLowerCase()));
+        }
+        if (filters.costMin) {
+          interventions = interventions.filter(i => parseFloat(i.costo || 0) >= parseFloat(filters.costMin));
+        }
+        if (filters.costMax) {
+          interventions = interventions.filter(i => parseFloat(i.costo || 0) <= parseFloat(filters.costMax));
+        }
+      }
+      
+      return interventions;
+    }
+
     function exportToExcel() {
       const vehicle = vehicles[currentVehicle];
       let csv = `${t('date')};${t('type')};${t('description')};${t('parts')};${t('cost')};${t('mileage')};${t('mechanic')};${t('notes')}\n`;
@@ -702,6 +774,44 @@
       const interventi = vehicle.interventi || [];
       const totalCosto = interventi.reduce((sum, i) => sum + (parseFloat(i.costo) || 0), 0);
       return { totalCosto, count: interventi.length };
+    }
+
+    // NOUVELLE FONCTION : Générer les statistiques
+    function getStatistics() {
+      const allVehicles = Object.values(vehicles);
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      
+      let monthlyRevenue = 0;
+      let monthlyInterventions = 0;
+      let totalRevenue = 0;
+      let totalInterventions = 0;
+      const customerSpending = {};
+      
+      allVehicles.forEach(v => {
+        v.interventi?.forEach(inter => {
+          const cost = parseFloat(inter.costo) || 0;
+          const interDate = new Date(inter.data);
+          
+          totalRevenue += cost;
+          totalInterventions++;
+          
+          if (interDate.getMonth() === currentMonth && interDate.getFullYear() === currentYear) {
+            monthlyRevenue += cost;
+            monthlyInterventions++;
+          }
+          
+          if (v.cliente?.nome) {
+            customerSpending[v.cliente.nome] = (customerSpending[v.cliente.nome] || 0) + cost;
+          }
+        });
+      });
+      
+      const topCustomers = Object.entries(customerSpending)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+      
+      return { monthlyRevenue, monthlyInterventions, totalRevenue, totalInterventions, topCustomers };
     }
 
     function generateInvoice(interventoId = null) {
@@ -734,7 +844,6 @@
         doc.text(`${t('vehicle')}: ${vehicle.targa}`, 20, 100);
         doc.text(`${vehicle.marca} ${vehicle.modello} ${vehicle.anno ? `(${vehicle.anno})` : ''}`, 20, 107);
         
-        // Ajouter infos client sur PDF
         if (vehicle.cliente?.nome) {
           doc.text(`${t('customer')}: ${vehicle.cliente.nome}`, 20, 114);
           if (vehicle.cliente.telefono) doc.text(`Tel: ${vehicle.cliente.telefono}`, 20, 121);
@@ -815,7 +924,7 @@
       const modals = document.querySelectorAll('.modal');
       modals.forEach(m => m.remove());
 
-      // ✅ ÉCOUTEUR GLOBAL POUR LES PHOTOS (correction bug affichage)
+      // Gestion des photos
       setTimeout(() => {
         const photoInput = document.getElementById('photoInput');
         if (photoInput && !photoInput.hasAttribute('data-listener')) {
@@ -859,6 +968,111 @@
           });
         }
       }, 100);
+
+      // DASHBOARD
+      if (showDashboard && isMechanicMode) {
+        const stats = getStatistics();
+        app.innerHTML = `
+          <div class="min-h-screen">
+            <div class="bg-blue-600 text-white p-4 shadow-lg">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                  <img src="logo.png" alt="TANO" class="h-12 w-12 object-contain rounded-lg bg-white p-1" onerror="this.style.display='none'">
+                  <div>
+                    <h1 class="text-2xl font-bold">${t('dashboard')}</h1>
+                    <p class="text-xs text-blue-100">📊 ${t('stats')}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  ${getLanguageSelector()}
+                  <button onclick="showDashboard=false; render();" class="hover:bg-blue-700 px-3 py-2 rounded">← ${t('back')}</button>
+                  <button onclick="logout()" class="px-3 py-2 bg-red-500 rounded hover:bg-red-600 text-sm">${t('logout')}</button>
+                </div>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow p-4 text-center">
+                  <div class="text-3xl font-bold text-blue-400">€${stats.monthlyRevenue.toFixed(2)}</div>
+                  <div class="text-sm text-gray-400">${t('monthlyStats')}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4 text-center">
+                  <div class="text-3xl font-bold text-green-400">${stats.monthlyInterventions}</div>
+                  <div class="text-sm text-gray-400">${t('interventions')} ${t('thisMonth')}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4 text-center">
+                  <div class="text-3xl font-bold text-purple-400">€${stats.totalRevenue.toFixed(2)}</div>
+                  <div class="text-sm text-gray-400">${t('totalRevenue')}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4 text-center">
+                  <div class="text-3xl font-bold text-yellow-400">${stats.totalInterventions}</div>
+                  <div class="text-sm text-gray-400">${t('total')} ${t('interventions')}</div>
+                </div>
+              </div>
+              
+              <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <h2 class="text-xl font-bold mb-3 text-white">🏆 ${t('topCustomers')}</h2>
+                ${stats.topCustomers.length > 0 ? `
+                  <div class="space-y-2">
+                    ${stats.topCustomers.map((customer, index) => `
+                      <div class="flex justify-between items-center p-2 bg-gray-800 rounded">
+                        <div class="flex items-center gap-3">
+                          <span class="text-lg font-bold text-yellow-400">${index + 1}</span>
+                          <span class="text-white">${customer[0]}</span>
+                        </div>
+                        <span class="text-green-400 font-bold">€${customer[1].toFixed(2)}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : `<p class="text-gray-400">${t('noResults')}</p>`}
+              </div>
+              
+              <div class="bg-white rounded-lg shadow p-4">
+                <h2 class="text-xl font-bold mb-3 text-white">📈 ${t('reminders')}</h2>
+                <div id="remindersList"></div>
+              </div>
+            </div>
+          </div>`;
+        
+        // Afficher les rappels
+        setTimeout(() => {
+          const remindersList = document.getElementById('remindersList');
+          let allReminders = [];
+          
+          Object.keys(vehicles).forEach(targa => {
+            const reminders = getReminders(targa);
+            reminders.forEach(r => {
+              allReminders.push({ targa, ...r });
+            });
+          });
+          
+          if (remindersList) {
+            if (allReminders.length > 0) {
+              remindersList.innerHTML = allReminders.map(r => `
+                <div class="p-3 mb-2 rounded ${r.urgency === 'high' ? 'bg-red-900 bg-opacity-50 border-red-500' : 'bg-yellow-900 bg-opacity-30 border-yellow-500'} border-l-4">
+                  <p class="font-bold text-white">${vehicles[r.targa].targa} - ${vehicles[r.targa].cliente?.nome || ''}</p>
+                  <p class="text-sm text-gray-300">${r.message}</p>
+                </div>
+              `).join('');
+            } else {
+              remindersList.innerHTML = `<p class="text-gray-400">${t('noResults')}</p>`;
+            }
+          }
+        }, 100);
+        
+        // Dessiner le graphique si Chart.js est disponible
+        if (window.Chart) {
+          setTimeout(() => {
+            const ctx = document.getElementById('revenueChart');
+            if (ctx && ctx.getContext) {
+              // Logique de graphique simulée
+              console.log('Chart.js disponible pour les statistiques');
+            }
+          }, 200);
+        }
+        
+        return;
+      }
 
       if (showAppointmentForm) {
         const vehicle = vehicles[currentVehicle];
@@ -912,7 +1126,6 @@
               <div class="text-center mb-4">
                 <p class="text-gray-300 mb-2">${t('vehicle')}: <strong class="text-white">${shareModalTarga}</strong></p>
                 <p class="text-gray-400">${vehicle.marca || ''} ${vehicle.modello || ''}</p>
-                <!-- Infos client dans le modal -->
                 ${vehicle.cliente?.nome ? `<div class="bg-gray-800 p-2 rounded mt-2"><p class="text-sm text-blue-400 font-semibold">👤 ${vehicle.cliente.nome}</p>${vehicle.cliente.telefono ? `<p class="text-xs text-gray-500">📞 ${vehicle.cliente.telefono}</p>` : ''}${vehicle.cliente.email ? `<p class="text-xs text-gray-500">✉️ ${vehicle.cliente.email}</p>` : ''}</div>` : ''}
               </div>
               <div id="qrcode"></div>
@@ -978,7 +1191,8 @@
                 </div>
                 <div class="flex items-center gap-2">
                   ${getLanguageSelector()}
-                  <button onclick="logout()" class="px-4 py-2 bg-red-500 rounded hover:bg-red-600 font-semibold">${t('logout')}</button>
+                  ${isMechanicMode ? `<button onclick="showDashboard=true; render();" class="bg-purple-600 hover:bg-purple-700 px-3 py-2 rounded-lg font-semibold">${t('dashboard')}</button>` : ''}
+                  <button onclick="logout()" class="px-3 py-2 bg-red-500 rounded hover:bg-red-600 text-sm">${t('logout')}</button>
                 </div>
               </div>
             </div>
@@ -986,7 +1200,6 @@
               <div class="bg-white rounded-lg shadow p-4 mb-4">
                 <h2 class="text-lg font-bold mb-3">➕ ${t('newVehicle')}</h2>
                 <div class="space-y-3">
-                  <!-- Infos véhicule -->
                   <input type="text" id="newVehicleTarga" placeholder="${t('plate')} *" class="w-full px-3 py-2 border rounded uppercase font-bold">
                   
                   <select id="newVehicleMarca" onchange="updateModels()" class="w-full px-3 py-2 border rounded bg-gray-800 text-white border-gray-600">
@@ -1007,7 +1220,6 @@
                     <input type="number" id="newVehicleKm" placeholder="${t('mileage')}" class="px-3 py-2 border rounded">
                   </div>
                   
-                  <!-- Infos client -->
                   <div class="border-t border-gray-600 pt-3 mt-3">
                     <h3 class="text-sm font-semibold text-gray-300 mb-2">👤 ${t('clientInfo')}</h3>
                     <input type="text" id="clienteNome" placeholder="${t('clientName')} *" class="w-full px-3 py-2 border rounded mb-2">
@@ -1030,7 +1242,6 @@
                             <span class="text-xl font-bold">${v.targa}</span>
                             <p class="text-gray-400">${v.marca || ''} ${v.modello || ''} ${v.anno ? `(${v.anno})` : ''}</p>
                             ${v.chilometraggio ? `<p class="text-sm text-gray-500">📍 ${v.chilometraggio} km</p>` : ''}
-                            <!-- Affichage infos client -->
                             ${v.cliente?.nome ? `<p class="text-sm font-semibold text-blue-400 mt-1">👤 ${v.cliente.nome}</p>` : ''}
                             ${v.cliente?.telefono ? `<p class="text-xs text-gray-500">📞 ${v.cliente.telefono}</p>` : ''}
                             <p class="text-xs text-gray-500 mt-1">${stats.count} ${t('interventions')} • €${stats.totalCosto.toFixed(2)}</p>
@@ -1056,6 +1267,8 @@
 
       if (!showAddForm) {
         const stats = getVehicleStats(currentVehicle);
+        const interventions = getFilteredInterventions();
+        
         app.innerHTML = `
           <div class="min-h-screen">
             <div class="bg-blue-600 text-white p-4 shadow-lg">
@@ -1072,7 +1285,6 @@
                   <h1 class="text-2xl font-bold">${vehicle.targa}</h1>
                   <p class="text-blue-100">${vehicle.marca || ''} ${vehicle.modello || ''} ${vehicle.anno ? `(${vehicle.anno})` : ''}</p>
                   ${vehicle.chilometraggio ? `<p class="text-sm text-blue-100">📍 ${vehicle.chilometraggio} km</p>` : ''}
-                  <!-- Infos client dans l'en-tête -->
                   ${vehicle.cliente?.nome ? `<p class="text-sm text-blue-100 mt-1">👤 ${vehicle.cliente.nome}</p>` : ''}
                 </div>
               </div>
@@ -1104,16 +1316,48 @@
                 ` : `<p class="text-gray-400 text-center py-4">${t('noAppointments')}</p>`}
               </div>
 
-              ${isMechanicMode ? `<div class="grid grid-cols-4 gap-2 mb-4">
+              ${isMechanicMode ? `
+                <div class="grid grid-cols-5 gap-2 mb-4">
                   <button onclick="showAddForm=true; render();" class="bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700">➕ ${t('newButton')}</button>
                   <button onclick="exportToExcel()" class="bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-800">📊 ${t('exportCSV')}</button>
                   <button onclick="openShareModal('${currentVehicle}')" class="bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">🔗 ${t('link')}</button>
                   <button onclick="generateInvoice()" class="pdf-button text-white py-3 rounded-lg font-semibold">📄 ${t('generateGlobalInvoice')}</button>
-                </div>` : `<div class="bg-blue-900 bg-opacity-50 text-white p-4 rounded-lg mb-4 text-center border border-blue-500"><p class="text-sm font-semibold">👤 ${t('clientMode')}</p></div>`}
-              <h2 class="text-xl font-bold mb-3 text-white">📋 ${t('history')} (${stats.count})</h2>
-              ${stats.count === 0 ? `<div class="bg-white rounded-lg shadow p-8 text-center text-gray-400"><p>${t('noInterventions')}</p></div>` : `
+                  <button onclick="showAdvancedSearch=!showAdvancedSearch; render();" class="bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700">🔍 ${t('searchAdvanced')}</button>
+                </div>
+                
+                ${showAdvancedSearch ? `
+                  <div class="bg-white rounded-lg shadow p-4 mb-4">
+                    <h3 class="text-lg font-bold mb-3 text-white">🔍 ${t('searchAdvanced')}</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div><label class="block text-sm font-semibold mb-1">📅 ${t('searchByDate')}</label><input type="date" id="filterDate" value="${filters.date}" onchange="filters.date=this.value" class="w-full px-3 py-2 border rounded"></div>
+                      <div><label class="block text-sm font-semibold mb-1">🔧 ${t('searchByType')}</label>
+                        <select id="filterType" onchange="filters.type=this.value" class="w-full px-3 py-2 border rounded">
+                          <option value="">${t('selectType')}</option>
+                          <option value="Tagliando" ${filters.type === 'Tagliando' ? 'selected' : ''}>Tagliando</option>
+                          <option value="Riparazione" ${filters.type === 'Riparazione' ? 'selected' : ''}>Riparazione</option>
+                          <option value="Revisione" ${filters.type === 'Revisione' ? 'selected' : ''}>Revisione</option>
+                        </select>
+                      </div>
+                      <div><label class="block text-sm font-semibold mb-1">👤 ${t('searchByMechanic')}</label><input type="text" id="filterMechanic" value="${filters.mechanic}" onchange="filters.mechanic=this.value" placeholder="${t('mechanicName')}" class="w-full px-3 py-2 border rounded"></div>
+                      <div><label class="block text-sm font-semibold mb-1">💰 ${t('searchByCost')}</label>
+                        <div class="grid grid-cols-2 gap-2">
+                          <input type="number" id="filterCostMin" value="${filters.costMin}" onchange="filters.costMin=this.value" placeholder="Min" class="px-3 py-2 border rounded" step="0.01">
+                                                    <input type="number" id="filterCostMax" value="${filters.costMax}" onchange="filters.costMax=this.value" placeholder="Max" class="px-3 py-2 border rounded" step="0.01">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex gap-2 mt-3">
+                      <button onclick="render();" class="flex-1 bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700">${t('applyFilter')}</button>
+                      <button onclick="filters={date:'',type:'',mechanic:'',costMin:'',costMax:''}; render();" class="flex-1 bg-gray-600 text-white py-2 rounded font-semibold hover:bg-gray-700">${t('resetFilter')}</button>
+                    </div>
+                  </div>
+                ` : ''}
+              ` : `<div class="bg-blue-900 bg-opacity-50 text-white p-4 rounded-lg mb-4 text-center border border-blue-500"><p class="text-sm font-semibold">👤 ${t('clientMode')}</p></div>`}
+              
+              <h2 class="text-xl font-bold mb-3 text-white">📋 ${t('history')} (${interventions.length})</h2>
+              ${interventions.length === 0 ? `<div class="bg-white rounded-lg shadow p-8 text-center text-gray-400"><p>${searchQuery ? t('noVehiclesFound') : t('noInterventions')}</p></div>` : `
                 <div class="space-y-3">
-                  ${(vehicle.interventi || []).map(inter => `<div class="bg-white rounded-lg shadow p-4">
+                  ${interventions.map(inter => `<div class="bg-white rounded-lg shadow p-4">
                       <div class="flex justify-between items-start mb-2">
                         <div class="flex-1">
                           <div class="text-sm text-gray-400 mb-1">📅 ${inter.data || t('date')}</div>
@@ -1127,7 +1371,9 @@
                       <p class="text-gray-300 mb-2">${inter.descrizione}</p>
                       ${inter.ricambi ? `<div class="text-sm text-gray-400 mb-1"><span class="font-semibold">🔧 ${t('parts')}:</span> ${inter.ricambi}</div>` : ''}
                       ${inter.note ? `<div class="bg-yellow-900 bg-opacity-30 border-l-4 border-yellow-500 p-3 mt-2 rounded"><p class="text-sm text-gray-300"><span class="font-semibold">💬 ${t('notes')}:</span> ${inter.note}</p></div>` : ''}
-                      <!-- Affichage des photos -->
+                      <!-- Tags -->
+                      ${inter.tags?.length ? `<div class="mt-2">${inter.tags.map(tag => `<span class="tag tag-${tag}">${t('tag' + tag.charAt(0).toUpperCase() + tag.slice(1))}</span>`).join('')}</div>` : ''}
+                      
                       ${inter.photos?.length ? `<div class="grid grid-cols-3 md:grid-cols-5 gap-2 mt-3">
                         ${inter.photos.map((photo, i) => `<img src="${photo}" onclick="window.open('${photo}', '_blank')" 
                           class="w-full h-20 object-cover rounded cursor-pointer hover:scale-110 transition-transform border border-gray-600" 
@@ -1143,6 +1389,7 @@
             </div>
           </div>`;
       } else {
+        // Formulaire d'ajout d'intervention avec tags
         const today = new Date().toISOString().split('T')[0];
         app.innerHTML = `
           <div class="min-h-screen">
@@ -1159,24 +1406,11 @@
                   <div><label class="block text-sm font-semibold mb-1">🔧 ${t('type')} *</label>
                     <select id="interventoTipo" class="w-full px-3 py-2 border rounded">
                       <option value="">${t('selectType')}</option>
-                      <option value="${t('typeOilChange')}">${t('typeOilChange')}</option>
-                      <option value="${t('typeOilFilter')}">${t('typeOilFilter')}</option>
-                      <option value="${t('typeAirFilter')}">${t('typeAirFilter')}</option>
-                      <option value="${t('typeFuelFilter')}">${t('typeFuelFilter')}</option>
-                      <option value="${t('typeCabinFilter')}">${t('typeCabinFilter')}</option>
-                      <option value="${t('typeSparkPlugs')}">${t('typeSparkPlugs')}</option>
-                      <option value="${t('typeTiming')}">${t('typeTiming')}</option>
-                      <option value="${t('typeBrakes')}">${t('typeBrakes')}</option>
-                      <option value="${t('typeTires')}">${t('typeTires')}</option>
-                      <option value="${t('typeClutch')}">${t('typeClutch')}</option>
-                      <option value="${t('typeInspection')}">${t('typeInspection')}</option>
-                      <option value="${t('typeAirCon')}">${t('typeAirCon')}</option>
-                      <option value="${t('typeDiagnostics')}">${t('typeDiagnostics')}</option>
-                      <option value="${t('typeBodywork')}">${t('typeBodywork')}</option>
-                      <option value="${t('typeElectrical')}">${t('typeElectrical')}</option>
-                      <option value="${t('typeSuspension')}">${t('typeSuspension')}</option>
-                      <option value="${t('typeExhaust')}">${t('typeExhaust')}</option>
-                      <option value="${t('typeOther')}">${t('typeOther')}</option>
+                      <option value="Tagliando">Tagliando</option>
+                      <option value="Riparazione">Riparazione</option>
+                      <option value="Revisione">Revisione</option>
+                      <option value="Gomme">Cambio gomme</option>
+                      <option value="Altro">${t('typeOther')}</option>
                     </select>
                   </div>
                   <div><label class="block text-sm font-semibold mb-1">📝 ${t('description')} *</label><textarea id="interventoDesc" rows="3" placeholder="${t('interventionDetails')}" class="w-full px-3 py-2 border rounded"></textarea></div>
@@ -1187,6 +1421,17 @@
                   </div>
                   <div><label class="block text-sm font-semibold mb-1">👤 ${t('mechanic')}</label><input type="text" id="interventoMeccanico" placeholder="${t('mechanicName')}" class="w-full px-3 py-2 border rounded"></div>
                   <div><label class="block text-sm font-semibold mb-1">💬 ${t('notes')}</label><textarea id="interventoNote" rows="3" placeholder="${t('observations')}" class="w-full px-3 py-2 border rounded"></textarea></div>
+                  
+                  <!-- Section Tags -->
+                  <div class="border-t border-gray-600 pt-3 mt-3">
+                    <h3 class="text-sm font-semibold text-gray-300 mb-2">🏷️ ${t('tags')}</h3>
+                    <div class="flex flex-wrap gap-2">
+                      <label class="flex items-center gap-2 text-sm text-gray-300"><input type="checkbox" class="tag-checkbox" value="urgent"> <span class="tag tag-urgent">${t('tagUrgent')}</span></label>
+                      <label class="flex items-center gap-2 text-sm text-gray-300"><input type="checkbox" class="tag-checkbox" value="warranty"> <span class="tag tag-warranty">${t('tagWarranty')}</span></label>
+                      <label class="flex items-center gap-2 text-sm text-gray-300"><input type="checkbox" class="tag-checkbox" value="recurring"> <span class="tag tag-recurring">${t('tagRecurring')}</span></label>
+                      <label class="flex items-center gap-2 text-sm text-gray-300"><input type="checkbox" class="tag-checkbox" value="parts"> <span class="tag tag-parts">${t('tagParts')}</span></label>
+                    </div>
+                  </div>
                   
                   <!-- Section Photos -->
                   <div class="border-t border-gray-600 pt-3 mt-3">
@@ -1208,6 +1453,14 @@
       }
     }
 
+    // Correction des traductions manquantes
+    translations.it.thisMonth = 'Questo Mese';
+    translations.it.total = 'Totale';
+    translations.fr.thisMonth = 'Ce Mois';
+    translations.fr.total = 'Total';
+    translations.en.thisMonth = 'This Month';
+    translations.en.total = 'Total';
+
     async function init() {
       loadDataLocal();
       const urlParams = new URLSearchParams(window.location.search);
@@ -1220,6 +1473,11 @@
         }
       }
       render();
+      
+      // Écouter le statut de connexion
+      window.addEventListener('online', () => { isOffline = false; showOfflineIndicator(); });
+      window.addEventListener('offline', () => { isOffline = true; showOfflineIndicator(); });
+      
       if (USE_FIREBASE) {
         if (!window.firebaseReady) await new Promise(resolve => { window.addEventListener('firebaseReady', resolve, { once: true }); });
         if (code && !verifyClientCode(code)) {
