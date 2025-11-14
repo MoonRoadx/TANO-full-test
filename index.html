@@ -12,6 +12,9 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- 📄 BIBLIOTHÈQUE JSPDF POUR GÉNÉRATION PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
   <style>
     html, body { height: 100%; margin: 0; }
@@ -66,6 +69,15 @@
       border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    /* 📄 STYLE POUR LES BOUTONS PDF */
+    .pdf-button {
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+      transition: all 0.3s ease;
+    }
+    .pdf-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    }
   </style>
 </head>
 
@@ -160,6 +172,16 @@
       "Vespa": ["Primavera", "Sprint", "GTS", "GTS Super", "Sei Giorni", "946", "Elettrica"]
     };
 
+    // 📄 INFORMATIONS DU GARAGE (modifiable dans les paramètres)
+    const garageInfo = {
+      name: "Tano Evoluzione - Bosch Car Service",
+      address: "Via Roma 123, 00100 Roma RM",
+      phone: "06 123 4567",
+      email: "info@tanoevoluzione.it",
+      vatNumber: "IT12345678901",
+      website: "www.tanoevoluzione.it"
+    };
+
     const translations = {
       it: {
         appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Inserisci il codice:",
@@ -193,6 +215,15 @@
         typeInspection: "Revisione", typeAirCon: "Aria Condizionata", typeDiagnostics: "Diagnostica",
         typeBodywork: "Carrozzeria", typeElectrical: "Elettrico/Elettrauto", typeSuspension: "Sospensioni",
         typeExhaust: "Scarico", typeOther: "Altro",
+        // 📄 NOUVELLES TRADUCTIONS POUR PDF
+        generateInvoice: "Genera Fattura", invoice: "Fattura", estimate: "Preventivo", documentNum: "Numero Documento",
+        documentDate: "Data Documento", customer: "Cliente", mechanicSignature: "Firma Meccanico", 
+        customerSignature: "Firma Cliente", total: "Totale", vat: "IVA", totalVAT: "Totale IVA Inclusa",
+        notes: "Note", terms: "Condizioni: Pagamento alla consegna - Garanzia 12 mesi sui ricambi",
+        thanks: "Grazie per la vostra fiducia!", invoiceType: "Tipo Documento", documentTypes: ["Fattura", "Preventivo", "Ricevuta"],
+        generateGlobalInvoice: "Genera Fattura Totale", globalInvoice: "Fattura Completa",
+        print: "Stampa", download: "Scarica PDF", invoiceGenerated: "PDF generato con successo",
+        invoiceError: "Errore nella generazione del PDF",
         whatsappMessage: "Ciao! Ecco il link per consultare lo storico del tuo veicolo",
         emailSubject: "Storico Veicolo",
         emailBody: "Gentile Cliente,\n\nEcco il link per consultare lo storico completo del suo veicolo",
@@ -231,6 +262,15 @@
         typeInspection: "Révision", typeAirCon: "Climatisation", typeDiagnostics: "Diagnostique",
         typeBodywork: "Carrosserie", typeElectrical: "Électrique/Électrauto", typeSuspension: "Suspensions",
         typeExhaust: "Échappement", typeOther: "Autre",
+        // 📄 NOUVELLES TRADUCTIONS POUR PDF
+        generateInvoice: "Générer Facture", invoice: "Facture", estimate: "Devis", documentNum: "Numéro Document",
+        documentDate: "Date Document", customer: "Client", mechanicSignature: "Signature Mécanicien", 
+        customerSignature: "Signature Client", total: "Total", vat: "TVA", totalVAT: "Total TVA Incluse",
+        notes: "Notes", terms: "Conditions: Paiement à la livraison - Garantie 12 mois sur pièces",
+        thanks: "Merci pour votre confiance!", invoiceType: "Type Document", documentTypes: ["Facture", "Devis", "Reçu"],
+        generateGlobalInvoice: "Générer Facture Totale", globalInvoice: "Facture Complète",
+        print: "Imprimer", download: "Télécharger PDF", invoiceGenerated: "PDF généré avec succès",
+        invoiceError: "Erreur dans la génération du PDF",
         whatsappMessage: "Bonjour! Voici le lien pour consulter l'historique de votre véhicule",
         emailSubject: "Historique Véhicule",
         emailBody: "Cher Client,\n\nVoici le lien pour consulter l'historique complet de votre véhicule",
@@ -269,6 +309,15 @@
         typeInspection: "Inspection", typeAirCon: "Air Conditioning", typeDiagnostics: "Diagnostics",
         typeBodywork: "Bodywork", typeElectrical: "Electrical", typeSuspension: "Suspension",
         typeExhaust: "Exhaust", typeOther: "Other",
+        // 📄 NOUVELLES TRADUCTIONS POUR PDF
+        generateInvoice: "Generate Invoice", invoice: "Invoice", estimate: "Estimate", documentNum: "Document Number",
+        documentDate: "Document Date", customer: "Customer", mechanicSignature: "Mechanic Signature", 
+        customerSignature: "Customer Signature", total: "Total", vat: "VAT", totalVAT: "Total VAT Included",
+        notes: "Notes", terms: "Terms: Payment on delivery - 12 months warranty on parts",
+        thanks: "Thank you for your trust!", invoiceType: "Document Type", documentTypes: ["Invoice", "Estimate", "Receipt"],
+        generateGlobalInvoice: "Generate Total Invoice", globalInvoice: "Complete Invoice",
+        print: "Print", download: "Download PDF", invoiceGenerated: "PDF generated successfully",
+        invoiceError: "Error generating PDF",
         whatsappMessage: "Hello! Here is the link to view your vehicle's history",
         emailSubject: "Vehicle History",
         emailBody: "Dear Customer,\n\nHere is the link to view the complete history of your vehicle",
@@ -404,20 +453,17 @@
       }
     }
 
-    // 🔧 Gestion des marques et modèles
     function updateModels() {
       const brandSelect = document.getElementById('newVehicleMarca');
       const modelSelect = document.getElementById('newVehicleModello');
       const otherModelInput = document.getElementById('otherModelInput');
       const selectedBrand = brandSelect.value;
       
-      // Réinitialiser les champs
       modelSelect.innerHTML = '';
       otherModelInput.style.display = 'none';
       
       if (selectedBrand && vehicleDatabase[selectedBrand]) {
         modelSelect.disabled = false;
-        // Option par défaut
         const placeholder = document.createElement('option');
         placeholder.value = '';
         placeholder.textContent = t('selectModel');
@@ -425,7 +471,6 @@
         placeholder.selected = true;
         modelSelect.appendChild(placeholder);
         
-        // Ajouter les modèles de la marque
         vehicleDatabase[selectedBrand].forEach(model => {
           const option = document.createElement('option');
           option.value = model;
@@ -433,7 +478,6 @@
           modelSelect.appendChild(option);
         });
         
-        // Option "Autre"
         const otherOption = document.createElement('option');
         otherOption.value = 'other';
         otherOption.textContent = t('otherModel');
@@ -473,7 +517,6 @@
       let modello = document.getElementById('newVehicleModello').value;
       const otherModello = document.getElementById('otherModelInput').value.trim();
       
-      // Si "Altre" est sélectionné, utiliser la valeur saisie
       if (modello === 'other' && otherModello) {
         modello = otherModello;
       }
@@ -499,7 +542,6 @@
       vehicles[targa] = vehicleData;
       saveDataLocal();
       
-      // Reset du formulaire
       try {
         document.getElementById('newVehicleTarga').value = '';
         document.getElementById('newVehicleMarca').value = '';
@@ -631,6 +673,140 @@
       return { totalCosto, count: interventi.length };
     }
 
+    // 📄 FONCTION DE GÉNÉRATION PDF
+    function generateInvoice(interventoId = null) {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // En-tête avec logo et infos garage
+        doc.setFillColor(37, 99, 235); // Bleu Tano
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(20);
+        doc.text(garageInfo.name, 20, 25);
+        
+        // Infos garage
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.text(garageInfo.address, 20, 50);
+        doc.text(`Tel: ${garageInfo.phone}`, 20, 56);
+        doc.text(`Email: ${garageInfo.email}`, 20, 62);
+        doc.text(`P.IVA: ${garageInfo.vatNumber}`, 20, 68);
+        
+        // Titre document
+        const isGlobal = !interventoId;
+        const documentType = isGlobal ? t('globalInvoice') : t('invoice');
+        doc.setFontSize(16);
+        doc.setTextColor(37, 99, 235);
+        doc.text(documentType, 20, 85);
+        
+        // Infos véhicule et client
+        const vehicle = vehicles[currentVehicle];
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(12);
+        doc.text(`${t('vehicle')}: ${vehicle.targa}`, 20, 100);
+        doc.text(`${vehicle.marca} ${vehicle.modello} ${vehicle.anno ? `(${vehicle.anno})` : ''}`, 20, 107);
+        
+        // Tableau des interventions
+        const headers = [
+          [t('date'), t('type'), t('description'), t('parts'), t('cost') + ' (€)']
+        ];
+        
+        const body = [];
+        let total = 0;
+        
+        if (isGlobal) {
+          // Facture globale avec toutes les interventions
+          vehicle.interventi.forEach(inter => {
+            const cost = parseFloat(inter.costo) || 0;
+            total += cost;
+            body.push([
+              inter.data || '',
+              inter.tipo || '',
+              inter.descrizione || '',
+              inter.ricambi || '',
+              cost.toFixed(2)
+            ]);
+          });
+        } else {
+          // Facture pour une seule intervention
+          const inter = vehicle.interventi.find(i => i.id === interventoId);
+          if (inter) {
+            const cost = parseFloat(inter.costo) || 0;
+            total = cost;
+            body.push([
+              inter.data || '',
+              inter.tipo || '',
+              inter.descrizione || '',
+              inter.ricambi || '',
+              cost.toFixed(2)
+            ]);
+          }
+        }
+        
+        // Ajouter tableau
+        doc.autoTable({
+          head: headers,
+          body: body,
+          startY: 120,
+          theme: 'grid',
+          headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
+          styles: { fontSize: 10 }
+        });
+        
+        // Total
+        const finalY = doc.previousAutoTable.finalY || 120;
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text(`${t('total')}: €${total.toFixed(2)}`, 20, finalY + 15);
+        
+        // TVA (exemple 22%)
+        const vatRate = 0.22;
+        const vat = total * vatRate;
+        const totalVAT = total + vat;
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'normal');
+        doc.text(`IVA (22%): €${vat.toFixed(2)}`, 20, finalY + 25);
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text(`${t('totalVAT')}: €${totalVAT.toFixed(2)}`, 20, finalY + 35);
+        
+        // Notes et conditions
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        const notes = vehicle.interventi.find(i => i.id === interventoId)?.note || '';
+        if (notes) {
+          doc.text(`${t('notes')}: ${notes}`, 20, finalY + 50);
+        }
+        doc.text(t('terms'), 20, finalY + 60, { maxWidth: 170 });
+        doc.text(t('thanks'), 20, finalY + 75);
+        
+        // Signatures
+        doc.text('_______________________', 20, finalY + 100);
+        doc.text(t('mechanicSignature'), 20, finalY + 105);
+        doc.text('_______________________', 110, finalY + 100);
+        doc.text(t('customerSignature'), 110, finalY + 105);
+        
+        // Pied de page
+        doc.setFillColor(37, 99, 235);
+        doc.rect(0, 280, 210, 20, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(8);
+        doc.text(garageInfo.website, 105, 288, { align: 'center' });
+        
+        // Télécharger le PDF
+        const fileName = `${vehicle.targa}_${isGlobal ? 'global' : 'intervention_' + interventoId}_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(fileName);
+        
+        showNotification(`📄 ${t('invoiceGenerated')}`);
+        
+      } catch (error) {
+        console.error('PDF Generation Error:', error);
+        showNotification(`❌ ${t('invoiceError')}`, 'error');
+      }
+    }
+
     function render() {
       const app = document.getElementById('app');
       const modals = document.querySelectorAll('.modal');
@@ -697,8 +873,6 @@
 
       if (!currentVehicle && isMechanicMode) {
         const vehiclesList = getFilteredVehicles();
-        
-        // Générer la liste des marques pour le select
         const brandOptions = Object.keys(vehicleDatabase).sort().map(brand => 
           `<option value="${brand}">${brand}</option>`
         ).join('');
@@ -801,10 +975,11 @@
               </div>
             </div>
             <div class="p-4">
-              ${isMechanicMode ? `<div class="grid grid-cols-3 gap-2 mb-4">
+              ${isMechanicMode ? `<div class="grid grid-cols-4 gap-2 mb-4">
                   <button onclick="showAddForm=true; render();" class="bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700">➕ ${t('newButton')}</button>
                   <button onclick="exportToExcel()" class="bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-800">📊 ${t('exportCSV')}</button>
                   <button onclick="openShareModal('${currentVehicle}')" class="bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">🔗 ${t('link')}</button>
+                  <button onclick="generateInvoice()" class="pdf-button text-white py-3 rounded-lg font-semibold">📄 ${t('generateGlobalInvoice')}</button>
                 </div>` : `<div class="bg-blue-900 bg-opacity-50 text-white p-4 rounded-lg mb-4 text-center border border-blue-500"><p class="text-sm font-semibold">👤 ${t('clientMode')}</p></div>`}
               <h2 class="text-xl font-bold mb-3 text-white">📋 ${t('history')} (${stats.count})</h2>
               ${stats.count === 0 ? `<div class="bg-white rounded-lg shadow p-8 text-center text-gray-400"><p>${t('noInterventions')}</p></div>` : `
@@ -815,7 +990,10 @@
                           <div class="text-sm text-gray-400 mb-1">📅 ${inter.data || t('date')}</div>
                           <h3 class="font-bold text-lg text-blue-400">${inter.tipo}</h3>
                         </div>
-                        ${isMechanicMode ? `<button onclick="deleteIntervento(${inter.id})" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded text-sm font-bold">✕</button>` : ''}
+                        ${isMechanicMode ? `<div class="flex gap-2">
+                          <button onclick="deleteIntervento(${inter.id})" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded text-sm font-bold">✕</button>
+                          <button onclick="generateInvoice(${inter.id})" class="pdf-button text-white px-3 py-1 rounded text-sm font-semibold">📄 ${t('generateInvoice')}</button>
+                        </div>` : ''}
                       </div>
                       <p class="text-gray-300 mb-2">${inter.descrizione}</p>
                       ${inter.ricambi ? `<div class="text-sm text-gray-400 mb-1"><span class="font-semibold">🔧 ${t('parts')}:</span> ${inter.ricambi}</div>` : ''}
