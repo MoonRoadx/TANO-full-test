@@ -166,11 +166,17 @@
         csvExported: "CSV esportato", linkCopied: "Link copiato negli appunti", disconnected: "Disconnesso",
         logoutConfirm: "Sei sicuro di voler uscire?", interventions: "interventi", required: "*",
         selectBrand: "Seleziona Marca", selectModel: "Seleziona Modello", otherModel: "Altro (specificare)",
-        // NOUVEAU : TRADUCTIONS CLIENT
+        // TRADUCTIONS CLIENT
         clientInfo: "Informazioni Cliente", clientName: "Nome Cliente", clientPhone: "Telefono", clientEmail: "Email", typeOther: "Altro",
         selectBrandFirst: "Seleziona prima una marca",
-        // NOUVEAU : TRADUCTIONS PHOTOS
+        // TRADUCTIONS PHOTOS
         photos: "Foto", optional: "Opzionale",
+        // TRADUCTIONS RDV
+        appointments: "Appuntamenti", newAppointment: "Nuovo Appuntamento", appointmentDate: "Data Appuntamento", 
+        appointmentTime: "Ora", appointmentType: "Tipo Intervento", appointmentNotes: "Note Appuntamento", 
+        status: "Stato", statusBooked: "Prenotato", statusCompleted: "Completato", statusCancelled: "Cancellato",
+        addAppointment: "Aggiungi Appuntamento", noAppointments: "Nessun appuntamento programmato",
+        appointmentAdded: "Appuntamento aggiunto con successo", appointmentDeleted: "Appuntamento eliminato",
         // PDF
         generateInvoice: "Genera Fattura", invoice: "Fattura", estimate: "Preventivo", documentNum: "Numero Documento",
         documentDate: "Data Documento", customer: "Cliente", mechanicSignature: "Firma Meccanico", 
@@ -209,11 +215,17 @@
         csvExported: "CSV exporté", linkCopied: "Lien copié dans le presse-papiers", disconnected: "Déconnecté",
         logoutConfirm: "Êtes-vous sûr de vouloir vous déconnecter?", interventions: "interventions", required: "*",
         selectBrand: "Sélectionner Marque", selectModel: "Sélectionner Modèle", otherModel: "Autre (spécifier)",
-        // NOUVEAU : TRADUCTIONS CLIENT
+        // TRADUCTIONS CLIENT
         clientInfo: "Informations Client", clientName: "Nom Client", clientPhone: "Téléphone", clientEmail: "Email", typeOther: "Autre",
         selectBrandFirst: "Sélectionnez d'abord une marque",
-        // NOUVEAU : TRADUCTIONS PHOTOS
+        // TRADUCTIONS PHOTOS
         photos: "Photos", optional: "Optionnel",
+        // TRADUCTIONS RDV
+        appointments: "Rendez-vous", newAppointment: "Nouveau Rendez-vous", appointmentDate: "Date RDV",
+        appointmentTime: "Heure", appointmentType: "Type d'intervention", appointmentNotes: "Notes RDV",
+        status: "Statut", statusBooked: "Réservé", statusCompleted: "Terminé", statusCancelled: "Annulé",
+        addAppointment: "Ajouter RDV", noAppointments: "Aucun rendez-vous programmé",
+        appointmentAdded: "Rendez-vous ajouté", appointmentDeleted: "Rendez-vous supprimé",
         // PDF
         generateInvoice: "Générer Facture", invoice: "Facture", estimate: "Devis", documentNum: "Numéro Document",
         documentDate: "Date Document", customer: "Client", mechanicSignature: "Signature Mécanicien", 
@@ -252,11 +264,17 @@
         csvExported: "CSV exported", linkCopied: "Link copied to clipboard", disconnected: "Disconnected",
         logoutConfirm: "Are you sure you want to logout?", interventions: "interventions", required: "*",
         selectBrand: "Select Brand", selectModel: "Select Model", otherModel: "Other (specify)",
-        // NOUVEAU : TRADUCTIONS CLIENT
+        // TRADUCTIONS CLIENT
         clientInfo: "Client Information", clientName: "Client Name", clientPhone: "Phone", clientEmail: "Email", typeOther: "Other",
         selectBrandFirst: "Select brand first",
-        // NOUVEAU : TRADUCTIONS PHOTOS
+        // TRADUCTIONS PHOTOS
         photos: "Photos", optional: "Optional",
+        // TRADUCTIONS RDV
+        appointments: "Appointments", newAppointment: "New Appointment", appointmentDate: "Appointment Date",
+        appointmentTime: "Time", appointmentType: "Service Type", appointmentNotes: "Appointment Notes",
+        status: "Status", statusBooked: "Booked", statusCompleted: "Completed", statusCancelled: "Cancelled",
+        addAppointment: "Add Appointment", noAppointments: "No appointments scheduled",
+        appointmentAdded: "Appointment added", appointmentDeleted: "Appointment deleted",
         // PDF
         generateInvoice: "Generate Invoice", invoice: "Invoice", estimate: "Estimate", documentNum: "Document Number",
         documentDate: "Document Date", customer: "Customer", mechanicSignature: "Mechanic Signature", 
@@ -283,7 +301,7 @@
     }
 
     let vehicles = {}, currentVehicle = null, showAddForm = false, isMechanicMode = false, isClientMode = false;
-    let showLoginScreen = true, searchQuery = '', showShareModal = false, shareModalTarga = null, realtimeUnsubscribe = null;
+    let showLoginScreen = true, searchQuery = '', showShareModal = false, shareModalTarga = null, realtimeUnsubscribe = null, showAppointmentForm = false;
 
     function showNotification(message, type = 'success') {
       const notification = document.createElement('div');
@@ -392,7 +410,7 @@
       if (confirm(t('logoutConfirm'))) {
         if (realtimeUnsubscribe) { realtimeUnsubscribe(); realtimeUnsubscribe = null; }
         isMechanicMode = false; isClientMode = false; showLoginScreen = true; currentVehicle = null;
-        showAddForm = false; searchQuery = '';
+        showAddForm = false; searchQuery = ''; showAppointmentForm = false;
         showNotification(`👋 ${t('disconnected')}`);
         render();
       }
@@ -489,6 +507,7 @@
           email: clienteEmail
         },
         interventi: [], 
+        appuntamenti: [], // NOUVEAU : Tableau des RDV
         clientCode: generateClientCode(targa), 
         createdAt: new Date().toISOString() 
       };
@@ -563,6 +582,47 @@
       saveDataLocal();
       await deleteFromFirestore(targa);
       render();
+    }
+
+    async function addAppointment() {
+      if (!isMechanicMode) return showNotification(`❌ ${t('accessDenied')}`, 'error');
+      
+      const data = document.getElementById('appointmentData').value;
+      const ora = document.getElementById('appointmentOra').value;
+      const tipo = document.getElementById('appointmentTipo').value;
+      const note = document.getElementById('appointmentNote').value.trim();
+      
+      if (!data || !ora || !tipo) return showNotification(`❌ ${t('typeDescRequired')}`, 'error');
+      
+      const appointment = {
+        id: Date.now(),
+        data,
+        ora,
+        tipo,
+        note,
+        stato: 'prenotato',
+        timestamp: new Date().toISOString()
+      };
+      
+      if (!vehicles[currentVehicle].appuntamenti) vehicles[currentVehicle].appuntamenti = [];
+      vehicles[currentVehicle].appuntamenti.push(appointment);
+      
+      saveDataLocal();
+      await syncToFirestore(currentVehicle, vehicles[currentVehicle]);
+      showAppointmentForm = false;
+      render();
+      showNotification(`✅ ${t('appointmentAdded')}`);
+    }
+
+    async function deleteAppointment(id) {
+      if (!isMechanicMode) return showNotification(`❌ ${t('accessDenied')}`, 'error');
+      if (!confirm('Eliminare questo appuntamento?')) return;
+      
+      vehicles[currentVehicle].appuntamenti = vehicles[currentVehicle].appuntamenti.filter(a => a.id !== id);
+      saveDataLocal();
+      await syncToFirestore(currentVehicle, vehicles[currentVehicle]);
+      render();
+      showNotification(`🗑️ ${t('appointmentDeleted')}`);
     }
 
     function openShareModal(targa) {
@@ -755,6 +815,89 @@
       const modals = document.querySelectorAll('.modal');
       modals.forEach(m => m.remove());
 
+      // ✅ ÉCOUTEUR GLOBAL POUR LES PHOTOS (correction bug affichage)
+      setTimeout(() => {
+        const photoInput = document.getElementById('photoInput');
+        if (photoInput && !photoInput.hasAttribute('data-listener')) {
+          photoInput.setAttribute('data-listener', 'true');
+          photoInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            const previews = document.getElementById('photoPreview');
+            if (!previews) return;
+            
+            previews.innerHTML = '';
+            files.forEach((file, index) => {
+              if (file.size > 5 * 1024 * 1024) {
+                showNotification('❌ File troppo grande (max 5MB)', 'error');
+                return;
+              }
+              
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'w-full h-24 object-cover rounded cursor-pointer';
+                
+                const container = document.createElement('div');
+                container.className = 'relative group';
+                container.appendChild(img);
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.innerHTML = '✕';
+                removeBtn.className = 'absolute top-0 right-0 bg-red-600 text-white w-6 h-6 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity';
+                removeBtn.onclick = () => {
+                  container.remove();
+                  if (document.querySelectorAll('#photoPreview img').length === 0) {
+                    document.getElementById('photoInput').value = '';
+                  }
+                };
+                container.appendChild(removeBtn);
+                previews.appendChild(container);
+              };
+              reader.readAsDataURL(file);
+            });
+          });
+        }
+      }, 100);
+
+      if (showAppointmentForm) {
+        const vehicle = vehicles[currentVehicle];
+        const today = new Date().toISOString().split('T')[0];
+        app.innerHTML = `
+          <div class="min-h-screen">
+            <div class="bg-purple-600 text-white p-4 shadow-lg">
+              <div class="flex items-center gap-3">
+                <img src="logo.png" alt="TANO" class="h-10 w-10 object-contain rounded-lg bg-white p-1" onerror="this.style.display='none'">
+                <div><h1 class="text-xl font-bold">${vehicle.targa}</h1><p class="text-purple-100">📅 ${t('newAppointment')}</p></div>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="bg-white rounded-lg shadow p-4">
+                <div class="space-y-3">
+                  <div><label class="block text-sm font-semibold mb-1">📅 ${t('appointmentDate')} *</label><input type="date" id="appointmentData" value="${today}" class="w-full px-3 py-2 border rounded"></div>
+                  <div><label class="block text-sm font-semibold mb-1">🕐 ${t('appointmentTime')} *</label><input type="time" id="appointmentOra" class="w-full px-3 py-2 border rounded" required></div>
+                  <div><label class="block text-sm font-semibold mb-1">🔧 ${t('appointmentType')} *</label>
+                    <select id="appointmentTipo" class="w-full px-3 py-2 border rounded">
+                      <option value="">${t('selectType')}</option>
+                      <option value="Tagliando">Tagliando</option>
+                      <option value="Riparazione">Riparazione</option>
+                      <option value="Revisione">Revisione</option>
+                      <option value="Gomme">Cambio gomme</option>
+                      <option value="Altro">${t('typeOther')}</option>
+                    </select>
+                  </div>
+                  <div><label class="block text-sm font-semibold mb-1">📝 ${t('appointmentNotes')}</label><textarea id="appointmentNote" rows="3" placeholder="Note per l'appuntamento..." class="w-full px-3 py-2 border rounded"></textarea></div>
+                  <div class="flex gap-2 pt-2">
+                    <button onclick="addAppointment()" class="flex-1 bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700">✅ ${t('addAppointment')}</button>
+                    <button onclick="showAppointmentForm=false; render();" class="flex-1 bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700">❌ ${t('cancel')}</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+        return;
+      }
+
       if (showShareModal && shareModalTarga) {
         const vehicle = vehicles[shareModalTarga];
         const code = vehicle.clientCode || generateClientCode(shareModalTarga);
@@ -935,6 +1078,32 @@
               </div>
             </div>
             <div class="p-4">
+              <!-- Section Appuntamenti -->
+              <div class="bg-white rounded-lg shadow p-4 mb-4">
+                <div class="flex justify-between items-center mb-3">
+                  <h2 class="text-xl font-bold text-white">📅 ${t('appointments')}</h2>
+                  ${isMechanicMode ? `<button onclick="showAppointmentForm=true; render();" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 font-semibold">+ ${t('newAppointment')}</button>` : ''}
+                </div>
+                
+                ${vehicle.appuntamenti?.length ? `
+                  <div class="space-y-2">
+                    ${vehicle.appuntamenti.map(app => `
+                      <div class="bg-gray-800 p-3 rounded border-l-4 border-purple-500">
+                        <div class="flex justify-between items-start">
+                          <div>
+                            <p class="font-bold text-purple-400">${app.data} ${app.ora || ''}</p>
+                            <p class="text-sm text-gray-300">${app.tipo}</p>
+                            ${app.note ? `<p class="text-xs text-gray-500 mt-1">${app.note}</p>` : ''}
+                            <span class="inline-block mt-1 px-2 py-1 text-xs rounded ${app.stato === 'completato' ? 'bg-green-600' : app.stato === 'cancellato' ? 'bg-red-600' : 'bg-purple-600'}">${t('status' + app.stato.charAt(0).toUpperCase() + app.stato.slice(1)) || app.stato}</span>
+                          </div>
+                          ${isMechanicMode ? `<button onclick="deleteAppointment(${app.id})" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded text-sm font-bold">✕</button>` : ''}
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : `<p class="text-gray-400 text-center py-4">${t('noAppointments')}</p>`}
+              </div>
+
               ${isMechanicMode ? `<div class="grid grid-cols-4 gap-2 mb-4">
                   <button onclick="showAddForm=true; render();" class="bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700">➕ ${t('newButton')}</button>
                   <button onclick="exportToExcel()" class="bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-800">📊 ${t('exportCSV')}</button>
@@ -1019,51 +1188,13 @@
                   <div><label class="block text-sm font-semibold mb-1">👤 ${t('mechanic')}</label><input type="text" id="interventoMeccanico" placeholder="${t('mechanicName')}" class="w-full px-3 py-2 border rounded"></div>
                   <div><label class="block text-sm font-semibold mb-1">💬 ${t('notes')}</label><textarea id="interventoNote" rows="3" placeholder="${t('observations')}" class="w-full px-3 py-2 border rounded"></textarea></div>
                   
-                  <!-- NOUVEAU : Section Photos -->
+                  <!-- Section Photos -->
                   <div class="border-t border-gray-600 pt-3 mt-3">
                     <h3 class="text-sm font-semibold text-gray-300 mb-2">📸 ${t('photos')} (${t('optional')})</h3>
                     <input type="file" id="photoInput" multiple accept="image/*" capture="environment" 
                            class="w-full px-3 py-2 border rounded bg-gray-800 text-white border-gray-600 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white">
                     <p class="text-xs text-gray-500 mt-1">🤖 Puoi scattare foto o selezionarle dalla galleria</p>
                     <div id="photoPreview" class="grid grid-cols-3 gap-2 mt-3"></div>
-                    <script>
-                      document.getElementById('photoInput')?.addEventListener('change', function(e) {
-                        const files = Array.from(e.target.files);
-                        const previews = document.getElementById('photoPreview');
-                        previews.innerHTML = '';
-                        
-                        files.forEach((file, index) => {
-                          if (file.size > 5 * 1024 * 1024) {
-                            showNotification('❌ File troppo grande (max 5MB)', 'error');
-                            return;
-                          }
-                          
-                          const reader = new FileReader();
-                          reader.onload = function(e) {
-                            const img = document.createElement('img');
-                            img.src = e.target.result;
-                            img.className = 'w-full h-24 object-cover rounded cursor-pointer';
-                            
-                            const container = document.createElement('div');
-                            container.className = 'relative group';
-                            container.appendChild(img);
-                            
-                            const removeBtn = document.createElement('button');
-                            removeBtn.innerHTML = '✕';
-                            removeBtn.className = 'absolute top-0 right-0 bg-red-600 text-white w-6 h-6 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity';
-                            removeBtn.onclick = () => {
-                              container.remove();
-                              if (document.querySelectorAll('#photoPreview img').length === 0) {
-                                document.getElementById('photoInput').value = '';
-                              }
-                            };
-                            container.appendChild(removeBtn);
-                            previews.appendChild(container);
-                          };
-                          reader.readAsDataURL(file);
-                        });
-                      });
-                    <\/script>
                   </div>
                   
                   <div class="flex gap-2 pt-2">
