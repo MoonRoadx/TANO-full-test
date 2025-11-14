@@ -169,6 +169,8 @@
         // NOUVEAU : TRADUCTIONS CLIENT
         clientInfo: "Informazioni Cliente", clientName: "Nome Cliente", clientPhone: "Telefono", clientEmail: "Email", typeOther: "Altro",
         selectBrandFirst: "Seleziona prima una marca",
+        // NOUVEAU : TRADUCTIONS PHOTOS
+        photos: "Foto", optional: "Opzionale",
         // PDF
         generateInvoice: "Genera Fattura", invoice: "Fattura", estimate: "Preventivo", documentNum: "Numero Documento",
         documentDate: "Data Documento", customer: "Cliente", mechanicSignature: "Firma Meccanico", 
@@ -210,6 +212,8 @@
         // NOUVEAU : TRADUCTIONS CLIENT
         clientInfo: "Informations Client", clientName: "Nom Client", clientPhone: "Téléphone", clientEmail: "Email", typeOther: "Autre",
         selectBrandFirst: "Sélectionnez d'abord une marque",
+        // NOUVEAU : TRADUCTIONS PHOTOS
+        photos: "Photos", optional: "Optionnel",
         // PDF
         generateInvoice: "Générer Facture", invoice: "Facture", estimate: "Devis", documentNum: "Numéro Document",
         documentDate: "Date Document", customer: "Client", mechanicSignature: "Signature Mécanicien", 
@@ -251,6 +255,8 @@
         // NOUVEAU : TRADUCTIONS CLIENT
         clientInfo: "Client Information", clientName: "Client Name", clientPhone: "Phone", clientEmail: "Email", typeOther: "Other",
         selectBrandFirst: "Select brand first",
+        // NOUVEAU : TRADUCTIONS PHOTOS
+        photos: "Photos", optional: "Optional",
         // PDF
         generateInvoice: "Generate Invoice", invoice: "Invoice", estimate: "Estimate", documentNum: "Document Number",
         documentDate: "Document Date", customer: "Customer", mechanicSignature: "Mechanic Signature", 
@@ -456,7 +462,7 @@
       let modello = document.getElementById('newVehicleModello').value;
       const otherModello = document.getElementById('otherModelInput').value.trim();
       
-      // NOUVEAU : Récupérer infos client
+      // Récupérer infos client
       const clienteNome = document.getElementById('clienteNome').value.trim();
       const clienteTelefono = document.getElementById('clienteTelefono').value.trim();
       const clienteEmail = document.getElementById('clienteEmail').value.trim();
@@ -502,6 +508,7 @@
 
     async function addIntervento() {
       if (!isMechanicMode) return showNotification(`❌ ${t('accessDenied')}`, 'error');
+      
       const data = document.getElementById('interventoData').value;
       const tipo = document.getElementById('interventoTipo').value;
       const descrizione = document.getElementById('interventoDesc').value.trim();
@@ -510,8 +517,28 @@
       const km = document.getElementById('interventoKm').value;
       const meccanico = document.getElementById('interventoMeccanico').value.trim();
       const note = document.getElementById('interventoNote').value.trim();
+      
+      // Récupérer les photos encodées en base64
+      const photos = [];
+      const previewImages = document.querySelectorAll('#photoPreview img');
+      previewImages.forEach(img => photos.push(img.src));
+      
       if (!tipo || !descrizione) return showNotification(`❌ ${t('typeDescRequired')}`, 'error');
-      const intervento = { id: Date.now(), data, tipo, descrizione, ricambi, costo, chilometraggio: km, meccanico, note, timestamp: new Date().toISOString() };
+      
+      const intervento = { 
+        id: Date.now(), 
+        data, 
+        tipo, 
+        descrizione, 
+        ricambi, 
+        costo, 
+        chilometraggio: km, 
+        meccanico, 
+        note, 
+        photos: photos, // Sauvegarde des photos
+        timestamp: new Date().toISOString() 
+      };
+      
       vehicles[currentVehicle].interventi.unshift(intervento);
       if (km) vehicles[currentVehicle].chilometraggio = km;
       saveDataLocal();
@@ -590,7 +617,7 @@
         v.targa.toLowerCase().includes(searchQuery) ||
         (v.marca && v.marca.toLowerCase().includes(searchQuery)) ||
         (v.modello && v.modello.toLowerCase().includes(searchQuery)) ||
-        (v.cliente?.nome && v.cliente.nome.toLowerCase().includes(searchQuery)) // NOUVEAU : Recherche par nom client
+        (v.cliente?.nome && v.cliente.nome.toLowerCase().includes(searchQuery))
       );
     }
 
@@ -647,7 +674,7 @@
         doc.text(`${t('vehicle')}: ${vehicle.targa}`, 20, 100);
         doc.text(`${vehicle.marca} ${vehicle.modello} ${vehicle.anno ? `(${vehicle.anno})` : ''}`, 20, 107);
         
-        // NOUVEAU : Ajouter infos client sur PDF
+        // Ajouter infos client sur PDF
         if (vehicle.cliente?.nome) {
           doc.text(`${t('customer')}: ${vehicle.cliente.nome}`, 20, 114);
           if (vehicle.cliente.telefono) doc.text(`Tel: ${vehicle.cliente.telefono}`, 20, 121);
@@ -742,7 +769,7 @@
               <div class="text-center mb-4">
                 <p class="text-gray-300 mb-2">${t('vehicle')}: <strong class="text-white">${shareModalTarga}</strong></p>
                 <p class="text-gray-400">${vehicle.marca || ''} ${vehicle.modello || ''}</p>
-                <!-- NOUVEAU : Infos client dans le modal -->
+                <!-- Infos client dans le modal -->
                 ${vehicle.cliente?.nome ? `<div class="bg-gray-800 p-2 rounded mt-2"><p class="text-sm text-blue-400 font-semibold">👤 ${vehicle.cliente.nome}</p>${vehicle.cliente.telefono ? `<p class="text-xs text-gray-500">📞 ${vehicle.cliente.telefono}</p>` : ''}${vehicle.cliente.email ? `<p class="text-xs text-gray-500">✉️ ${vehicle.cliente.email}</p>` : ''}</div>` : ''}
               </div>
               <div id="qrcode"></div>
@@ -837,7 +864,7 @@
                     <input type="number" id="newVehicleKm" placeholder="${t('mileage')}" class="px-3 py-2 border rounded">
                   </div>
                   
-                  <!-- NOUVEAU : Infos client -->
+                  <!-- Infos client -->
                   <div class="border-t border-gray-600 pt-3 mt-3">
                     <h3 class="text-sm font-semibold text-gray-300 mb-2">👤 ${t('clientInfo')}</h3>
                     <input type="text" id="clienteNome" placeholder="${t('clientName')} *" class="w-full px-3 py-2 border rounded mb-2">
@@ -860,7 +887,7 @@
                             <span class="text-xl font-bold">${v.targa}</span>
                             <p class="text-gray-400">${v.marca || ''} ${v.modello || ''} ${v.anno ? `(${v.anno})` : ''}</p>
                             ${v.chilometraggio ? `<p class="text-sm text-gray-500">📍 ${v.chilometraggio} km</p>` : ''}
-                            <!-- NOUVEAU : Affichage infos client -->
+                            <!-- Affichage infos client -->
                             ${v.cliente?.nome ? `<p class="text-sm font-semibold text-blue-400 mt-1">👤 ${v.cliente.nome}</p>` : ''}
                             ${v.cliente?.telefono ? `<p class="text-xs text-gray-500">📞 ${v.cliente.telefono}</p>` : ''}
                             <p class="text-xs text-gray-500 mt-1">${stats.count} ${t('interventions')} • €${stats.totalCosto.toFixed(2)}</p>
@@ -902,7 +929,7 @@
                   <h1 class="text-2xl font-bold">${vehicle.targa}</h1>
                   <p class="text-blue-100">${vehicle.marca || ''} ${vehicle.modello || ''} ${vehicle.anno ? `(${vehicle.anno})` : ''}</p>
                   ${vehicle.chilometraggio ? `<p class="text-sm text-blue-100">📍 ${vehicle.chilometraggio} km</p>` : ''}
-                  <!-- NOUVEAU : Infos client dans l'en-tête -->
+                  <!-- Infos client dans l'en-tête -->
                   ${vehicle.cliente?.nome ? `<p class="text-sm text-blue-100 mt-1">👤 ${vehicle.cliente.nome}</p>` : ''}
                 </div>
               </div>
@@ -931,6 +958,12 @@
                       <p class="text-gray-300 mb-2">${inter.descrizione}</p>
                       ${inter.ricambi ? `<div class="text-sm text-gray-400 mb-1"><span class="font-semibold">🔧 ${t('parts')}:</span> ${inter.ricambi}</div>` : ''}
                       ${inter.note ? `<div class="bg-yellow-900 bg-opacity-30 border-l-4 border-yellow-500 p-3 mt-2 rounded"><p class="text-sm text-gray-300"><span class="font-semibold">💬 ${t('notes')}:</span> ${inter.note}</p></div>` : ''}
+                      <!-- Affichage des photos -->
+                      ${inter.photos?.length ? `<div class="grid grid-cols-3 md:grid-cols-5 gap-2 mt-3">
+                        ${inter.photos.map((photo, i) => `<img src="${photo}" onclick="window.open('${photo}', '_blank')" 
+                          class="w-full h-20 object-cover rounded cursor-pointer hover:scale-110 transition-transform border border-gray-600" 
+                          alt="Photo ${i+1}">`).join('')}
+                      </div>` : ''}
                       <div class="flex flex-wrap gap-3 mt-2 text-sm">
                         ${inter.costo ? `<div class="text-green-400 font-semibold">💰 ${inter.costo} €</div>` : ''}
                         ${inter.chilometraggio ? `<div class="text-gray-400 font-semibold">📍 ${inter.chilometraggio} km</div>` : ''}
@@ -985,6 +1018,54 @@
                   </div>
                   <div><label class="block text-sm font-semibold mb-1">👤 ${t('mechanic')}</label><input type="text" id="interventoMeccanico" placeholder="${t('mechanicName')}" class="w-full px-3 py-2 border rounded"></div>
                   <div><label class="block text-sm font-semibold mb-1">💬 ${t('notes')}</label><textarea id="interventoNote" rows="3" placeholder="${t('observations')}" class="w-full px-3 py-2 border rounded"></textarea></div>
+                  
+                  <!-- NOUVEAU : Section Photos -->
+                  <div class="border-t border-gray-600 pt-3 mt-3">
+                    <h3 class="text-sm font-semibold text-gray-300 mb-2">📸 ${t('photos')} (${t('optional')})</h3>
+                    <input type="file" id="photoInput" multiple accept="image/*" capture="environment" 
+                           class="w-full px-3 py-2 border rounded bg-gray-800 text-white border-gray-600 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white">
+                    <p class="text-xs text-gray-500 mt-1">🤖 Puoi scattare foto o selezionarle dalla galleria</p>
+                    <div id="photoPreview" class="grid grid-cols-3 gap-2 mt-3"></div>
+                    <script>
+                      document.getElementById('photoInput')?.addEventListener('change', function(e) {
+                        const files = Array.from(e.target.files);
+                        const previews = document.getElementById('photoPreview');
+                        previews.innerHTML = '';
+                        
+                        files.forEach((file, index) => {
+                          if (file.size > 5 * 1024 * 1024) {
+                            showNotification('❌ File troppo grande (max 5MB)', 'error');
+                            return;
+                          }
+                          
+                          const reader = new FileReader();
+                          reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'w-full h-24 object-cover rounded cursor-pointer';
+                            
+                            const container = document.createElement('div');
+                            container.className = 'relative group';
+                            container.appendChild(img);
+                            
+                            const removeBtn = document.createElement('button');
+                            removeBtn.innerHTML = '✕';
+                            removeBtn.className = 'absolute top-0 right-0 bg-red-600 text-white w-6 h-6 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity';
+                            removeBtn.onclick = () => {
+                              container.remove();
+                              if (document.querySelectorAll('#photoPreview img').length === 0) {
+                                document.getElementById('photoInput').value = '';
+                              }
+                            };
+                            container.appendChild(removeBtn);
+                            previews.appendChild(container);
+                          };
+                          reader.readAsDataURL(file);
+                        });
+                      });
+                    <\/script>
+                  </div>
+                  
                   <div class="flex gap-2 pt-2">
                     <button onclick="addIntervento()" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700">✅ ${t('save')}</button>
                     <button onclick="showAddForm=false; render();" class="flex-1 bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700">❌ ${t('cancel')}</button>
