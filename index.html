@@ -106,6 +106,60 @@
     const MECHANIC_PIN = "1234";
     const USE_FIREBASE = true;
 
+    // 📋 BASE DE DONNÉES VÉHICULES COMPLETE
+    const vehicleDatabase = {
+      "Fiat": ["Panda", "500", "Punto", "Tipo", "Doblò", "500L", "500X", "124 Spider", "Multipla", "Bravo", "Stilo", "Croma", "Freemont", "Barchetta", "Coupe", "Ulysse", "Sedici", "Idea", "Linea", "Ducato"],
+      "Alfa Romeo": ["Giulia", "Stelvio", "Giulietta", "Mito", "159", "147", "156", "166", "Brera", "Spider", "GT", "GTV", "164", "155", "33", "Alfasud", "Alfetta", "Giulietta Spider"],
+      "Lancia": ["Ypsilon", "Delta", "Musa", "Phedra", "Thesis", "Lybra", "Kappa", "Zeta", "Prisma", "Dedra", "Thema"],
+      "Ferrari": ["F40", "F50", "Enzo", "LaFerrari", "296 GTB", "SF90 Stradale", "F8 Tributo", "812 Superfast", "Portofino", "Roma", "488", "458", "F430", "360", "355", "348", "Testarossa"],
+      "Lamborghini": ["Aventador", "Huracán", "Urus", "Gallardo", "Murciélago", "Diablo", "Countach", "Espada", "Jarama"],
+      "Maserati": ["Ghibli", "Levante", "Quattroporte", "GranTurismo", "GranCabrio", "Spyder", "3200 GT"],
+      "BMW": ["Serie 1", "Serie 2", "Serie 3", "Serie 4", "Serie 5", "Serie 6", "Serie 7", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "Z4", "M3", "M4", "M5", "i3", "i4", "iX"],
+      "Mercedes": ["Classe A", "Classe B", "Classe C", "Classe E", "Classe S", "Classe G", "GLA", "GLB", "GLC", "GLE", "GLS", "SL", "SLK", "AMG GT", "EQA", "EQC", "EQS", "Vito", "Sprinter"],
+      "Audi": ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "Q2", "Q3", "Q4", "Q5", "Q7", "Q8", "TT", "R8", "e-tron"],
+      "Volkswagen": ["Golf", "Passat", "Polo", "Tiguan", "Touareg", "T-Roc", "T-Cross", "Arteon", "Up!", "Beetle", "Jetta", "Scirocco", "Sharan", "Touran", "Transporter", "Caddy"],
+      "Renault": ["Clio", "Captur", "Mégane", "Scénic", "Kadjar", "Koleos", "Twingo", "Espace", "Laguna", "Zoé", "Talisman", "Kangoo", "Trafic"],
+      "Peugeot": ["208", "308", "508", "2008", "3008", "5008", "108", "408", "607", "807", "Expert", "Partner", "Boxer"],
+      "Citroën": ["C3", "C4", "C5", "C1", "C2", "C6", "C8", "Berlingo", "Jumpy", "Jumper", "DS3", "DS4", "DS5"],
+      "Opel": ["Corsa", "Astra", "Insignia", "Mokka", "Crossland", "Grandland", "Zafira", "Vivaro", "Movano", "GT", "Speedster"],
+      "Ford": ["Fiesta", "Focus", "Mondeo", "Kuga", "Puma", "EcoSport", "Edge", "Galaxy", "S-Max", "Mustang", "Ranger", "Transit"],
+      "Toyota": ["Yaris", "Corolla", "Camry", "RAV4", "C-HR", "Highlander", "Hilux", "Land Cruiser", "Supra", "Aygo", "Prius", "Mirai"],
+      "Honda": ["Civic", "Accord", "CR-V", "HR-V", "Jazz", "e", "NSX", "FR-V"],
+      "Nissan": ["Micra", "Juke", "Qashqai", "X-Trail", "Pathfinder", "Navara", "370Z", "GT-R", "Leaf", "Note", "Primera"],
+      "Mazda": ["2", "3", "6", "CX-3", "CX-30", "CX-5", "CX-60", "CX-80", "MX-5", "RX-8"],
+      "Subaru": ["Impreza", "Forester", "Outback", "XV", "Legacy", "WRX STI", "BRZ", "Justy"],
+      "Mitsubishi": ["Colt", "Lancer", "ASX", "Eclipse Cross", "Outlander", "Pajero", "Space Star", "Shogun"],
+      "Kia": ["Picanto", "Rio", "Ceed", "Sportage", "Niro", "Sorento", "EV6", "Stinger", "Optima"],
+      "Hyundai": ["i10", "i20", "i30", "Tucson", "Santa Fe", "Kona", "Ioniq", "Bayon", "Palisade", "Nexo"],
+      "Suzuki": ["Swift", "Ignis", "S-Cross", "Vitara", "Jimny", "Baleno", "Celerio"],
+      "Dacia": ["Sandero", "Duster", "Lodgy", "Dokker", "Logan", "Spring", "Jogger"],
+      "Jeep": ["Renegade", "Compass", "Cherokee", "Grand Cherokee", "Wrangler", "Commander"],
+      "Land Rover": ["Defender", "Discovery", "Discovery Sport", "Range Rover", "Range Rover Sport", "Range Rover Evoque", "Range Rover Velar"],
+      "Jaguar": ["XE", "XF", "XJ", "F-PACE", "E-PACE", "I-PACE", "F-TYPE"],
+      "Volvo": ["XC40", "XC60", "XC90", "S60", "S90", "V40", "V60", "V90", "C40", "EX90"],
+      "Mini": ["Cooper", "Countryman", "Clubman", "Convertible", "Paceman", "Roadster", "Coupe"],
+      "Smart": ["Fortwo", "Forfour", "Roadster", "Cabrio"],
+      "Abarth": ["500", "595", "695", "124 Spider", "Punto Evo"],
+      "Alpine": ["A110", "A310", "GTA", "V6 Turbo"],
+      "Tesla": ["Model S", "Model 3", "Model X", "Model Y", "Roadster", "Cybertruck"],
+      "Porsche": ["911", "718 Boxster", "718 Cayman", "Panamera", "Macan", "Cayenne", "Taycan", "959"],
+      "Bugatti": ["Chiron", "Veyron", "EB110", "Divo", "La Voiture Noire"],
+      "McLaren": ["720S", "570S", "P1", "F1", "Artura", "GT", "600LT"],
+      "Aston Martin": ["Vantage", "DB11", "DBS", "Rapide", "Vanquish", "DBX"],
+      "Lotus": ["Elise", "Exige", "Evora", "Emira", "Eletre"],
+      "Bentley": ["Continental", "Flying Spur", "Bentayga", "Mulsanne"],
+      "Rolls-Royce": ["Phantom", "Ghost", "Wraith", "Dawn", "Cullinan", "Spectre"],
+      "MAN": ["TGE", "TGL", "TGM", "TGS", "TGX"],
+      "IVECO": ["Daily", "Eurocargo", "Stralis", "S-Way", "X-Way", "T-Way"],
+      "Scania": ["Serie R", "Serie S", "Serie G", "Serie P", "Serie L"],
+      "Volvo Trucks": ["FH", "FM", "FMX", "FE", "FL", "VNR", "VHD", "VAH"],
+      "Mercedes-Benz Vans": ["Sprinter", "Vito", "Citan", "Vario", "Atego", "Axor", "Actros"],
+      "Renault Trucks": ["T", "C", "K", "D", "Master", "Trafic", "Kangoo"],
+      "Ford Trucks": ["F-150", "F-250", "F-350", "Ranger", "Transit", "Custom", "Connect"],
+      "Piaggio": ["Ape", "Porter", "MP3", "Beverly", "Liberty", "Zip", "Vespa", "Fly", "Carnaby", "Typhoon"],
+      "Vespa": ["Primavera", "Sprint", "GTS", "GTS Super", "Sei Giorni", "946", "Elettrica"]
+    };
+
     const translations = {
       it: {
         appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Inserisci il codice:",
@@ -132,6 +186,7 @@
         linkInvalid: "Link non valido o scaduto", vehicleAdded: "Veicolo aggiunto con successo", dataSaved: "Dati salvati",
         csvExported: "CSV esportato", linkCopied: "Link copiato negli appunti", disconnected: "Disconnesso",
         logoutConfirm: "Sei sicuro di voler uscire?", interventions: "interventi", required: "*",
+        selectBrand: "Seleziona Marca", selectModel: "Seleziona Modello", otherModel: "Altro (specificare)",
         typeOilChange: "Cambio Olio", typeOilFilter: "Filtro Olio", typeAirFilter: "Filtro Aria",
         typeFuelFilter: "Filtro Carburante", typeCabinFilter: "Filtro Abitacolo", typeSparkPlugs: "Candele",
         typeTiming: "Distribuzione", typeBrakes: "Freni", typeTires: "Pneumatici", typeClutch: "Frizione",
@@ -169,6 +224,7 @@
         linkInvalid: "Lien non valide ou expiré", vehicleAdded: "Véhicule ajouté avec succès", dataSaved: "Données sauvegardées",
         csvExported: "CSV exporté", linkCopied: "Lien copié dans le presse-papiers", disconnected: "Déconnecté",
         logoutConfirm: "Êtes-vous sûr de vouloir vous déconnecter?", interventions: "interventions", required: "*",
+        selectBrand: "Sélectionner Marque", selectModel: "Sélectionner Modèle", otherModel: "Autre (spécifier)",
         typeOilChange: "Vidange", typeOilFilter: "Filtre à Huile", typeAirFilter: "Filtre à Air",
         typeFuelFilter: "Filtre à Carburant", typeCabinFilter: "Filtre d'Habitacle", typeSparkPlugs: "Bougies",
         typeTiming: "Distribution", typeBrakes: "Freins", typeTires: "Pneus", typeClutch: "Embrayage",
@@ -206,6 +262,7 @@
         linkInvalid: "Invalid or expired link", vehicleAdded: "Vehicle added successfully", dataSaved: "Data saved",
         csvExported: "CSV exported", linkCopied: "Link copied to clipboard", disconnected: "Disconnected",
         logoutConfirm: "Are you sure you want to logout?", interventions: "interventions", required: "*",
+        selectBrand: "Select Brand", selectModel: "Select Model", otherModel: "Other (specify)",
         typeOilChange: "Oil Change", typeOilFilter: "Oil Filter", typeAirFilter: "Air Filter",
         typeFuelFilter: "Fuel Filter", typeCabinFilter: "Cabin Filter", typeSparkPlugs: "Spark Plugs",
         typeTiming: "Timing Belt", typeBrakes: "Brakes", typeTires: "Tires", typeClutch: "Clutch",
@@ -347,25 +404,112 @@
       }
     }
 
+    // 🔧 Gestion des marques et modèles
+    function updateModels() {
+      const brandSelect = document.getElementById('newVehicleMarca');
+      const modelSelect = document.getElementById('newVehicleModello');
+      const otherModelInput = document.getElementById('otherModelInput');
+      const selectedBrand = brandSelect.value;
+      
+      // Réinitialiser les champs
+      modelSelect.innerHTML = '';
+      otherModelInput.style.display = 'none';
+      
+      if (selectedBrand && vehicleDatabase[selectedBrand]) {
+        modelSelect.disabled = false;
+        // Option par défaut
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = t('selectModel');
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        modelSelect.appendChild(placeholder);
+        
+        // Ajouter les modèles de la marque
+        vehicleDatabase[selectedBrand].forEach(model => {
+          const option = document.createElement('option');
+          option.value = model;
+          option.textContent = model;
+          modelSelect.appendChild(option);
+        });
+        
+        // Option "Autre"
+        const otherOption = document.createElement('option');
+        otherOption.value = 'other';
+        otherOption.textContent = t('otherModel');
+        modelSelect.appendChild(otherOption);
+      } else if (selectedBrand === 'other') {
+        modelSelect.disabled = true;
+        otherModelInput.style.display = 'block';
+        otherModelInput.value = '';
+      } else {
+        modelSelect.disabled = true;
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = t('selectBrandFirst');
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        modelSelect.appendChild(placeholder);
+      }
+    }
+
+    function handleModelChange() {
+      const modelSelect = document.getElementById('newVehicleModello');
+      const otherModelInput = document.getElementById('otherModelInput');
+      
+      if (modelSelect.value === 'other') {
+        otherModelInput.style.display = 'block';
+        otherModelInput.value = '';
+      } else {
+        otherModelInput.style.display = 'none';
+      }
+    }
+
     async function addVehicle() {
       if (!isMechanicMode) return showNotification(`❌ ${t('accessDenied')}`, 'error');
+      
       const targa = document.getElementById('newVehicleTarga').value.toUpperCase().trim();
-      const marca = document.getElementById('newVehicleMarca').value.trim();
-      const modello = document.getElementById('newVehicleModello').value.trim();
+      const marca = document.getElementById('newVehicleMarca').value;
+      let modello = document.getElementById('newVehicleModello').value;
+      const otherModello = document.getElementById('otherModelInput').value.trim();
+      
+      // Si "Altre" est sélectionné, utiliser la valeur saisie
+      if (modello === 'other' && otherModello) {
+        modello = otherModello;
+      }
+      
       const anno = document.getElementById('newVehicleAnno').value.trim();
       const km = document.getElementById('newVehicleKm').value.trim();
+      
       if (!targa) return showNotification(`❌ ${t('plateRequired')}`, 'error');
+      if (!marca) return showNotification(`❌ ${t('brand')} ${t('required')}`, 'error');
+      if (!modello) return showNotification(`❌ ${t('model')} ${t('required')}`, 'error');
       if (vehicles[targa]) return showNotification(`❌ ${t('vehicleExists')}`, 'error');
-      const vehicleData = { targa, marca, modello, anno, chilometraggio: km, interventi: [], clientCode: generateClientCode(targa), createdAt: new Date().toISOString() };
+      
+      const vehicleData = { 
+        targa, 
+        marca, 
+        modello, 
+        anno, 
+        chilometraggio: km, 
+        interventi: [], 
+        clientCode: generateClientCode(targa), 
+        createdAt: new Date().toISOString() 
+      };
       vehicles[targa] = vehicleData;
       saveDataLocal();
+      
+      // Reset du formulaire
       try {
         document.getElementById('newVehicleTarga').value = '';
         document.getElementById('newVehicleMarca').value = '';
-        document.getElementById('newVehicleModello').value = '';
+        document.getElementById('newVehicleModello').innerHTML = '';
+        document.getElementById('newVehicleModello').disabled = true;
+        document.getElementById('otherModelInput').style.display = 'none';
         document.getElementById('newVehicleAnno').value = '';
         document.getElementById('newVehicleKm').value = '';
       } catch(e) {}
+      
       showNotification(`✅ ${t('vehicleAdded')}`);
       if (USE_FIREBASE) syncToFirestore(targa, vehicleData).catch(err => {});
       setTimeout(() => render(), 100);
@@ -553,6 +697,12 @@
 
       if (!currentVehicle && isMechanicMode) {
         const vehiclesList = getFilteredVehicles();
+        
+        // Générer la liste des marques pour le select
+        const brandOptions = Object.keys(vehicleDatabase).sort().map(brand => 
+          `<option value="${brand}">${brand}</option>`
+        ).join('');
+        
         app.innerHTML = `
           <div class="min-h-screen">
             <div class="bg-blue-600 text-white p-4 shadow-lg">
@@ -573,12 +723,22 @@
             <div class="p-4">
               <div class="bg-white rounded-lg shadow p-4 mb-4">
                 <h2 class="text-lg font-bold mb-3">➕ ${t('newVehicle')}</h2>
-                <div class="space-y-2">
+                <div class="space-y-3">
                   <input type="text" id="newVehicleTarga" placeholder="${t('plate')} *" class="w-full px-3 py-2 border rounded uppercase font-bold">
-                  <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="newVehicleMarca" placeholder="${t('brand')}" class="px-3 py-2 border rounded">
-                    <input type="text" id="newVehicleModello" placeholder="${t('model')}" class="px-3 py-2 border rounded">
+                  
+                  <select id="newVehicleMarca" onchange="updateModels()" class="w-full px-3 py-2 border rounded bg-gray-800 text-white border-gray-600">
+                    <option value="">${t('selectBrand')}</option>
+                    ${brandOptions}
+                    <option value="other">--- ${t('typeOther')} ---</option>
+                  </select>
+                  
+                  <div style="position: relative;">
+                    <select id="newVehicleModello" onchange="handleModelChange()" disabled class="w-full px-3 py-2 border rounded bg-gray-800 text-white border-gray-600 disabled:opacity-50">
+                      <option value="">${t('selectBrandFirst')}</option>
+                    </select>
+                    <input type="text" id="otherModelInput" placeholder="${t('otherModel')}" style="display: none; margin-top: 8px;" class="w-full px-3 py-2 border rounded bg-gray-800 text-white border-gray-600">
                   </div>
+                  
                   <div class="grid grid-cols-2 gap-2">
                     <input type="number" id="newVehicleAnno" placeholder="${t('year')}" class="px-3 py-2 border rounded">
                     <input type="number" id="newVehicleKm" placeholder="${t('mileage')}" class="px-3 py-2 border rounded">
