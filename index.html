@@ -3,214 +3,347 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TANO v2.0 - Complet</title>
+  <meta name="description" content="Sistema di tracciamento interventi meccanici - Tano Evoluzione"/>
+  <title>TANO v2.0 - Sistema Completo</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
   <style>
+    html, body { height: 100%; margin: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
       color: white;
       min-height: 100vh;
+      opacity: 0;
+      animation: fadeIn 1s ease-in-out forwards;
     }
-    .card {
-      background: rgba(30,30,35,0.88);
-      backdrop-filter: blur(12px);
+    #app { min-height: 100vh; padding-bottom: 50px; }
+    .bg-white {
+      background-color: rgba(30,30,35,0.88) !important;
+      backdrop-filter: blur(12px) saturate(120%);
       border: 1px solid rgba(255,255,255,0.15);
       box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      transition: all 0.4s ease;
     }
+    .bg-white p, .bg-white span, .bg-white h2, .bg-white h3 { color: #e5e7eb !important; }
+    .text-gray-600, .text-gray-500, .text-gray-700 { color: #d1d5db !important; }
+    .text-blue-600 { color: #60a5fa !important; }
     input, textarea, select {
       color: #f3f4f6 !important;
       background-color: rgba(45,45,50,0.95) !important;
       border: 2px solid rgba(75,85,99,0.8) !important;
     }
+    input::placeholder, textarea::placeholder { color: #9ca3af !important; }
     input:focus, textarea:focus, select:focus {
-      outline: none;
-      box-shadow: 0 0 0 4px rgba(59,130,246,0.3);
-      border-color: #3b82f6 !important;
+      outline: none; box-shadow: 0 0 0 4px rgba(59,130,246,0.3); border-color: #3b82f6 !important;
     }
-    @keyframes pulse-alert {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.8; transform: scale(1.05); }
-    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes pulse-alert { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
     .alert-pulse { animation: pulse-alert 2s infinite; }
-    .badge {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: #dc2626;
-      color: white;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: bold;
-      animation: pulse-alert 2s infinite;
-    }
     .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 16px 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      z-index: 1000;
-      animation: slideIn 0.3s ease-out;
+      position: fixed; top: 20px; right: 20px; padding: 16px 24px; border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; animation: slideIn 0.3s ease-out;
     }
-    @keyframes slideIn {
-      from { transform: translateX(400px); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
+    @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .modal { 
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); 
+      display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; 
     }
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      padding: 20px;
+    .modal-content { 
+      background: rgba(30,30,35,0.95); border-radius: 12px; padding: 24px; 
+      max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; 
+      border: 1px solid rgba(255,255,255,0.15); 
     }
-    .modal-content {
-      background: rgba(30,30,35,0.95);
-      border-radius: 12px;
-      padding: 24px;
-      max-width: 600px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      border: 1px solid rgba(255,255,255,0.15);
+    .badge {
+      position: absolute; top: -8px; right: -8px; background: #dc2626;
+      color: white; border-radius: 50%; width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: bold; animation: pulse-alert 2s infinite;
     }
   </style>
 </head>
 <body>
   <div id="app" class="min-h-screen"></div>
 
-  <script>
-    // ========================================
-    // 🔧 CONFIGURATION
-    // ========================================
-    const MECHANIC_PIN = "1234";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getFirestore, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBiU0Q_xfHBLlGHh0vbeZpBAc1uoRz554",
+      authDomain: "tano-client-serveur.firebaseapp.com",
+      projectId: "tano-client-serveur",
+      storageBucket: "tano-client-serveur.firebasestorage.app",
+      messagingSenderId: "83806701673",
+      appId: "1:83806701673:web:6e44a0ebd99ea0a75cfaf8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
     
+    try {
+      await enableIndexedDbPersistence(db);
+      console.log("✅ Mode hors ligne activé");
+    } catch (err) {
+      console.log("⚠️ Erreur persistance:", err.code);
+    }
+    
+    window.firebaseDB = db;
+    window.firebaseReady = true;
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
+  <script>
+    const MECHANIC_PIN = "1234";
+    const USE_FIREBASE = true;
+
     // Règles d'alertes
     const MAINTENANCE_RULES = {
       tagliando: {
-        kmInterval: 15000,
-        monthsInterval: 12,
-        kmWarningThreshold: 2000,
-        daysWarningThreshold: 60,
-        icon: "🛢️",
-        urgency: "high",
-        visibleToClient: true
+        kmInterval: 15000, monthsInterval: 12, kmWarningThreshold: 2000, daysWarningThreshold: 60,
+        icon: "🛢️", urgency: "high", visibleToClient: true
       },
       courroie: {
-        kmInterval: 100000,
-        monthsInterval: 60,
-        kmWarningThreshold: 5000,
-        daysWarningThreshold: 180,
-        icon: "⚙️",
-        urgency: "critical",
-        visibleToClient: true
+        kmInterval: 100000, monthsInterval: 60, kmWarningThreshold: 5000, daysWarningThreshold: 180,
+        icon: "⚙️", urgency: "critical", visibleToClient: true
       },
       plaquettes: {
-        kmInterval: 40000,
-        monthsInterval: null,
-        kmWarningThreshold: 3000,
-        daysWarningThreshold: null,
-        icon: "🔴",
-        urgency: "high",
-        visibleToClient: true
+        kmInterval: 40000, monthsInterval: null, kmWarningThreshold: 3000, daysWarningThreshold: null,
+        icon: "🔴", urgency: "high", visibleToClient: true
+      },
+      pneus: {
+        kmInterval: 50000, monthsInterval: 48, kmWarningThreshold: 5000, daysWarningThreshold: 90,
+        icon: "🛞", urgency: "medium", visibleToClient: true
+      },
+      batterie: {
+        kmInterval: null, monthsInterval: 48, kmWarningThreshold: null, daysWarningThreshold: 90,
+        icon: "🔋", urgency: "medium", visibleToClient: true
       }
     };
 
-    // Traductions simplifiées
-    const t = {
-      appName: "TANO Evoluzione",
-      loginTitle: "Inserisci il codice:",
-      loginButton: "Accedi",
-      mechanicMode: "Modo Meccanico",
-      clientMode: "Modo Cliente",
-      logout: "Esci",
-      back: "Indietro",
-      vehicles: "Veicoli",
-      noVehicles: "Nessun veicolo",
-      newIntervention: "Nuovo Intervento",
-      history: "Storico",
-      save: "Salva",
-      cancel: "Annulla",
-      alerts: "Alertas",
-      viewAlerts: "Vedi Alertas",
-      noAlerts: "Nessuna alerta",
-      urgent: "Urgenti",
-      close: "Chiudi"
+    // Traductions
+    const translations = {
+      it: {
+        appName: "TANO Evoluzione", appSubtitle: "Bosch Car Service",
+        loginTitle: "Inserisci il codice:", loginButton: "Accedi",
+        mechanicMode: "Modo Meccanico", clientMode: "Modo Cliente",
+        logout: "Esci", back: "Indietro", vehicles: "Veicoli",
+        noVehicles: "Nessun veicolo", newIntervention: "Nuovo Intervento",
+        history: "Storico", save: "Salva", cancel: "Annulla",
+        alerts: "Alertas", viewAlerts: "Vedi Alertas", noAlerts: "Nessuna alerta",
+        urgent: "Urgenti", close: "Chiudi", date: "Data", type: "Tipo",
+        description: "Descrizione", parts: "Ricambi", cost: "Costo",
+        mileage: "Chilometraggio", mechanic: "Meccanico", notes: "Note",
+        realtimeActive: "Sync tempo reale attiva", noInterventions: "Nessun intervento",
+        remaining: "Rimanenti", km: "km", days: "giorni",
+        serviceOilChange: "Tagliando", serviceRepair: "Riparazione",
+        serviceInspection: "Revisione", serviceTires: "Cambio gomme", serviceOther: "Altro",
+        tagliando: { nameClient: "Tagliando", descriptionClient: "È tempo del tagliando!" },
+        courroie: { nameClient: "Cinghia", descriptionClient: "Importante: sostituire la cinghia" },
+        plaquettes: { nameClient: "Freni", descriptionClient: "Controlla i freni per sicurezza" },
+        pneus: { nameClient: "Pneumatici", descriptionClient: "Pneumatici da controllare" },
+        batterie: { nameClient: "Batteria", descriptionClient: "Batteria da sostituire presto" }
+      },
+      fr: {
+        appName: "TANO Evoluzione", appSubtitle: "Bosch Car Service",
+        loginTitle: "Entrez le code:", loginButton: "Connexion",
+        mechanicMode: "Mode Mécanicien", clientMode: "Mode Client",
+        logout: "Déconnexion", back: "Retour", vehicles: "Véhicules",
+        noVehicles: "Aucun véhicule", newIntervention: "Nouvelle Intervention",
+        history: "Historique", save: "Enregistrer", cancel: "Annuler",
+        alerts: "Alertes", viewAlerts: "Voir Alertes", noAlerts: "Aucune alerte",
+        urgent: "Urgents", close: "Fermer", date: "Date", type: "Type",
+        description: "Description", parts: "Pièces", cost: "Coût",
+        mileage: "Kilométrage", mechanic: "Mécanicien", notes: "Notes",
+        realtimeActive: "Sync temps réel active", noInterventions: "Aucune intervention",
+        remaining: "Restants", km: "km", days: "jours",
+        serviceOilChange: "Vidange", serviceRepair: "Réparation",
+        serviceInspection: "Révision", serviceTires: "Changement pneus", serviceOther: "Autre",
+        tagliando: { nameClient: "Vidange", descriptionClient: "C'est l'heure de la vidange!" },
+        courroie: { nameClient: "Courroie", descriptionClient: "Important: remplacer la courroie" },
+        plaquettes: { nameClient: "Freins", descriptionClient: "Vérifier les freins pour sécurité" },
+        pneus: { nameClient: "Pneus", descriptionClient: "Pneus à contrôler" },
+        batterie: { nameClient: "Batterie", descriptionClient: "Batterie à remplacer bientôt" }
+      },
+      en: {
+        appName: "TANO Evoluzione", appSubtitle: "Bosch Car Service",
+        loginTitle: "Enter code:", loginButton: "Login",
+        mechanicMode: "Mechanic Mode", clientMode: "Client Mode",
+        logout: "Logout", back: "Back", vehicles: "Vehicles",
+        noVehicles: "No vehicles", newIntervention: "New Intervention",
+        history: "History", save: "Save", cancel: "Cancel",
+        alerts: "Alerts", viewAlerts: "View Alerts", noAlerts: "No alerts",
+        urgent: "Urgent", close: "Close", date: "Date", type: "Type",
+        description: "Description", parts: "Parts", cost: "Cost",
+        mileage: "Mileage", mechanic: "Mechanic", notes: "Notes",
+        realtimeActive: "Real-time sync active", noInterventions: "No interventions",
+        remaining: "Remaining", km: "km", days: "days",
+        serviceOilChange: "Oil Change", serviceRepair: "Repair",
+        serviceInspection: "Inspection", serviceTires: "Tire Change", serviceOther: "Other",
+        tagliando: { nameClient: "Oil Change", descriptionClient: "Time for oil change!" },
+        courroie: { nameClient: "Timing Belt", descriptionClient: "Important: replace belt" },
+        plaquettes: { nameClient: "Brakes", descriptionClient: "Check brakes for safety" },
+        pneus: { nameClient: "Tires", descriptionClient: "Tires need checking" },
+        batterie: { nameClient: "Battery", descriptionClient: "Battery needs replacement soon" }
+      }
     };
 
-    // État global
-    let state = {
-      vehicles: {},
-      currentVehicle: null,
-      showAddForm: false,
-      isMechanicMode: false,
-      isClientMode: false,
-      showLoginScreen: true,
-      showAlertsModal: false
-    };
-
-    // ========================================
-    // 💾 STOCKAGE LOCAL
-    // ========================================
-    function loadData() {
-      try {
-        const stored = localStorage.getItem('tano_vehicles');
-        if (stored) state.vehicles = JSON.parse(stored);
-      } catch (e) {}
+    let currentLang = localStorage.getItem('app_language') || 'it';
+    function t(key, subkey = null) {
+      if (subkey) return translations[currentLang][key]?.[subkey] || translations.it[key]?.[subkey] || key;
+      return translations[currentLang][key] || translations.it[key] || key;
+    }
+    function setLanguage(lang) { currentLang = lang; localStorage.setItem('app_language', lang); render(); }
+    function getLanguageSelector() {
+      return `<select onchange="setLanguage(this.value)" class="px-3 py-2 rounded-lg text-sm font-semibold bg-gray-700 text-white border-2 border-gray-600">
+        <option value="it" ${currentLang === 'it' ? 'selected' : ''}>🇮🇹 IT</option>
+        <option value="fr" ${currentLang === 'fr' ? 'selected' : ''}>🇫🇷 FR</option>
+        <option value="en" ${currentLang === 'en' ? 'selected' : ''}>🇬🇧 EN</option>
+      </select>`;
     }
 
-    function saveData() {
-      try {
-        localStorage.setItem('tano_vehicles', JSON.stringify(state.vehicles));
-      } catch (e) {}
+    let vehicles = {}, currentVehicle = null, showAddForm = false;
+    let isMechanicMode = false, isClientMode = false, showLoginScreen = true;
+    let showAlertsModal = false, realtimeUnsubscribe = null;
+
+    function showNotification(message, type = 'success') {
+      const notif = document.createElement('div');
+      notif.className = `notification ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`;
+      notif.textContent = message;
+      document.body.appendChild(notif);
+      setTimeout(() => notif.remove(), 3000);
     }
 
-    // ========================================
-    // 🔔 CALCUL ALERTES
-    // ========================================
+    function generateClientCode(targa) { return `${targa}-${new Date().getFullYear()}`; }
+
+    async function syncToFirestore(targa, vehicleData) {
+      if (!USE_FIREBASE || !window.firebaseDB) return;
+      try {
+        const { setDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
+        await setDoc(doc(window.firebaseDB, 'vehicles', targa), vehicleData);
+      } catch (error) {
+        showNotification('⚠️ Sync error', 'error');
+      }
+    }
+
+    async function loadFromFirestore(targa, enableRealtime = false) {
+      if (!USE_FIREBASE || !window.firebaseDB) return null;
+      try {
+        const { getDoc, doc, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
+        
+        if (enableRealtime) {
+          if (realtimeUnsubscribe) realtimeUnsubscribe();
+          realtimeUnsubscribe = onSnapshot(doc(window.firebaseDB, 'vehicles', targa), (docSnap) => {
+            if (docSnap.exists()) {
+              vehicles[targa] = docSnap.data();
+              saveDataLocal();
+              if (!showLoginScreen && currentVehicle === targa) render();
+            }
+          });
+          const docSnap = await getDoc(doc(window.firebaseDB, 'vehicles', targa));
+          return docSnap.exists() ? docSnap.data() : null;
+        } else {
+          const docSnap = await getDoc(doc(window.firebaseDB, 'vehicles', targa));
+          return docSnap.exists() ? docSnap.data() : null;
+        }
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function loadDataLocal() {
+      try {
+        const stored = localStorage.getItem('garage_vehicles');
+        if (stored) vehicles = JSON.parse(stored);
+      } catch (error) { vehicles = {}; }
+    }
+
+    function saveDataLocal() {
+      try { localStorage.setItem('garage_vehicles', JSON.stringify(vehicles)); } catch (error) {}
+    }
+
+    async function login() {
+      const code = document.getElementById('loginCode').value.trim();
+      if (!code) return showNotification('❌ Code requis', 'error');
+      
+      if (code === MECHANIC_PIN) {
+        isMechanicMode = true;
+        isClientMode = false;
+        showLoginScreen = false;
+        currentVehicle = null;
+        showNotification('✅ Accès mécanicien');
+        render();
+        return;
+      }
+      
+      const parts = code.toUpperCase().split('-');
+      if (parts.length >= 2) {
+        const year = parts[parts.length - 1];
+        const targa = parts.slice(0, -1).join('-');
+        const vehicleData = await loadFromFirestore(targa, true);
+        
+        if (vehicleData) {
+          vehicles[targa] = vehicleData;
+          saveDataLocal();
+          const currentYear = new Date().getFullYear().toString();
+          const lastYear = (currentYear - 1).toString();
+          
+          if (year === currentYear || year === lastYear) {
+            isClientMode = true;
+            isMechanicMode = false;
+            showLoginScreen = false;
+            currentVehicle = targa;
+            showNotification(`✅ ${t('realtimeActive')}`);
+            render();
+            return;
+          }
+        }
+      }
+      showNotification('❌ Code invalide', 'error');
+    }
+
+    function logout() {
+      if (confirm('Sei sicuro?')) {
+        if (realtimeUnsubscribe) { realtimeUnsubscribe(); realtimeUnsubscribe = null; }
+        isMechanicMode = false;
+        isClientMode = false;
+        showLoginScreen = true;
+        currentVehicle = null;
+        showAddForm = false;
+        showNotification('👋 Disconnesso');
+        render();
+      }
+    }
+
     function calculateAlerts(vehicle, forClient = false) {
       if (!vehicle || !vehicle.interventi) return [];
-      
       const alerts = [];
       const today = new Date();
 
       Object.entries(MAINTENANCE_RULES).forEach(([key, rule]) => {
         if (forClient && !rule.visibleToClient) return;
-
         let alert = null;
 
-        // Vérification kilométrage
         if (rule.kmInterval && vehicle.chilometraggio) {
           const lastMaintenance = vehicle.interventi
             .filter(i => i.tipo && i.tipo.toLowerCase().includes(key))
             .sort((a, b) => (b.chilometraggio || 0) - (a.chilometraggio || 0))[0];
-
           const kmSinceLast = lastMaintenance 
             ? parseInt(vehicle.chilometraggio) - parseInt(lastMaintenance.chilometraggio || 0)
             : parseInt(vehicle.chilometraggio);
-
           const kmRemaining = rule.kmInterval - kmSinceLast;
 
           if (kmRemaining <= rule.kmWarningThreshold) {
             alert = {
-              type: key,
-              icon: rule.icon,
-              message: `Rimanenti: ${kmRemaining} km`,
+              type: key, icon: rule.icon,
+              message: `${t('remaining')}: ${kmRemaining} ${t('km')}`,
               urgency: kmRemaining <= 500 ? 'critical' : kmRemaining <= 1000 ? 'high' : rule.urgency,
               percent: Math.min((kmSinceLast / rule.kmInterval) * 100, 100)
             };
           }
         }
-
         if (alert) alerts.push(alert);
       });
 
@@ -224,164 +357,98 @@
       return urgency === 'critical' ? 'bg-red-600' : urgency === 'high' ? 'bg-orange-500' : 'bg-yellow-500';
     }
 
-    // ========================================
-    // 🎨 INTERFACE
-    // ========================================
-    function showNotification(message, type = 'success') {
-      const notif = document.createElement('div');
-      notif.className = `notification ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`;
-      notif.textContent = message;
-      document.body.appendChild(notif);
-      setTimeout(() => notif.remove(), 3000);
-    }
-
-    // ========================================
-    // 🔐 AUTHENTIFICATION
-    // ========================================
-    function login() {
-      const code = document.getElementById('loginCode').value.trim();
-      if (!code) return showNotification('Code requis', 'error');
+    async function addIntervento() {
+      if (!isMechanicMode) return showNotification('❌ Accesso negato', 'error');
       
-      if (code === MECHANIC_PIN) {
-        state.isMechanicMode = true;
-        state.isClientMode = false;
-        state.showLoginScreen = false;
-        showNotification('✅ Accès mécanicien');
-        render();
-        return;
-      }
-      
-      // Login client
-      const parts = code.toUpperCase().split('-');
-      if (parts.length >= 2) {
-        const targa = parts.slice(0, -1).join('-');
-        if (state.vehicles[targa]) {
-          state.isClientMode = true;
-          state.isMechanicMode = false;
-          state.showLoginScreen = false;
-          state.currentVehicle = targa;
-          showNotification('✅ Accès client');
-          render();
-          return;
-        }
-      }
-      
-      showNotification('❌ Code invalide', 'error');
-    }
-
-    function logout() {
-      if (confirm('Sei sicuro di voler uscire?')) {
-        state = {
-          ...state,
-          isMechanicMode: false,
-          isClientMode: false,
-          showLoginScreen: true,
-          currentVehicle: null,
-          showAddForm: false,
-          showAlertsModal: false
-        };
-        showNotification('👋 Disconnesso');
-        render();
-      }
-    }
-
-    // ========================================
-    // 🚗 GESTION VÉHICULES
-    // ========================================
-    function addVehicle() {
-      const targa = document.getElementById('newTarga').value.toUpperCase().trim();
-      const marca = document.getElementById('newMarca').value.trim();
-      const modello = document.getElementById('newModello').value.trim();
-      
-      if (!targa || !marca || !modello) {
-        return showNotification('❌ Campi obbligatori', 'error');
-      }
-      
-      if (state.vehicles[targa]) {
-        return showNotification('❌ Veicolo già esistente', 'error');
-      }
-      
-      state.vehicles[targa] = {
-        targa,
-        marca,
-        modello,
-        anno: document.getElementById('newAnno').value,
-        chilometraggio: document.getElementById('newKm').value,
-        interventi: [],
-        clientCode: `${targa}-${new Date().getFullYear()}`,
-        createdAt: new Date().toISOString()
-      };
-      
-      saveData();
-      showNotification('✅ Veicolo aggiunto');
-      render();
-    }
-
-    // ========================================
-    // 🔧 GESTION INTERVENTIONS
-    // ========================================
-    function addIntervento() {
       const data = document.getElementById('interData').value;
       const tipo = document.getElementById('interTipo').value;
       const descrizione = document.getElementById('interDesc').value.trim();
       const km = document.getElementById('interKm').value;
       
-      if (!tipo || !descrizione) {
-        return showNotification('❌ Tipo e descrizione obbligatori', 'error');
-      }
+      if (!tipo || !descrizione) return showNotification('❌ Campi obbligatori', 'error');
       
       const intervento = {
-        id: Date.now(),
-        data,
-        tipo,
-        descrizione,
-        chilometraggio: km,
+        id: Date.now(), data, tipo, descrizione, chilometraggio: km,
         costo: document.getElementById('interCosto').value,
+        ricambi: document.getElementById('interRicambi').value,
+        meccanico: document.getElementById('interMeccanico').value,
+        note: document.getElementById('interNote').value,
         timestamp: new Date().toISOString()
       };
       
-      state.vehicles[state.currentVehicle].interventi.unshift(intervento);
-      if (km) state.vehicles[state.currentVehicle].chilometraggio = km;
+      vehicles[currentVehicle].interventi.unshift(intervento);
+      if (km) vehicles[currentVehicle].chilometraggio = km;
+      saveDataLocal();
       
-      saveData();
-      state.showAddForm = false;
-      showNotification('✅ Intervento salvato');
+      try {
+        await syncToFirestore(currentVehicle, vehicles[currentVehicle]);
+        showNotification('✅ Intervento salvato - Cliente notificato');
+      } catch (error) {
+        showNotification('⚠️ Salvato localmente', 'error');
+      }
+      
+      showAddForm = false;
       render();
     }
 
-    // ========================================
-    // 🎨 RENDU
-    // ========================================
+    function addVehicle() {
+      const targa = document.getElementById('newTarga').value.toUpperCase().trim();
+      const marca = document.getElementById('newMarca').value.trim();
+      const modello = document.getElementById('newModello').value.trim();
+      
+      if (!targa || !marca || !modello) return showNotification('❌ Campi obbligatori', 'error');
+      if (vehicles[targa]) return showNotification('❌ Veicolo già esistente', 'error');
+      
+      vehicles[targa] = {
+        targa, marca, modello,
+        anno: document.getElementById('newAnno').value,
+        chilometraggio: document.getElementById('newKm').value,
+        interventi: [],
+        clientCode: generateClientCode(targa),
+        createdAt: new Date().toISOString()
+      };
+      
+      saveDataLocal();
+      syncToFirestore(targa, vehicles[targa]);
+      showNotification('✅ Veicolo aggiunto');
+      
+      document.getElementById('newTarga').value = '';
+      document.getElementById('newMarca').value = '';
+      document.getElementById('newModello').value = '';
+      document.getElementById('newAnno').value = '';
+      document.getElementById('newKm').value = '';
+    }
+
     function render() {
       const app = document.getElementById('app');
       
-      // Modal Alertes
-      if (state.showAlertsModal) {
-        const vehicle = state.vehicles[state.currentVehicle];
-        const alerts = calculateAlerts(vehicle, state.isClientMode);
+      if (showAlertsModal) {
+        const vehicle = vehicles[currentVehicle];
+        const alerts = calculateAlerts(vehicle, isClientMode);
         
         app.innerHTML = `
-          <div class="modal" onclick="if(event.target.classList.contains('modal')) { state.showAlertsModal=false; render(); }">
+          <div class="modal" onclick="if(event.target.classList.contains('modal')) { showAlertsModal=false; render(); }">
             <div class="modal-content" onclick="event.stopPropagation()">
               <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold">🔔 ${t.alerts} - ${vehicle.targa}</h2>
-                <button onclick="state.showAlertsModal=false; render();" class="text-white text-3xl">&times;</button>
+                <h2 class="text-xl font-bold">🔔 ${t('alerts')} - ${vehicle.targa}</h2>
+                <button onclick="showAlertsModal=false; render();" class="text-white text-3xl">&times;</button>
               </div>
               
               ${alerts.length === 0 ? `
                 <div class="text-center py-8">
                   <span class="text-6xl">✅</span>
-                  <p class="mt-4 text-gray-400">${t.noAlerts}</p>
+                  <p class="mt-4 text-gray-400">${t('noAlerts')}</p>
                 </div>
               ` : `
                 <div class="space-y-3">
                   ${alerts.map(alert => `
-                    <div class="card p-4 rounded-lg border-l-4 ${alert.urgency === 'critical' ? 'border-red-500' : 'border-orange-500'}">
+                    <div class="bg-white p-4 rounded-lg border-l-4 ${alert.urgency === 'critical' ? 'border-red-500' : 'border-orange-500'}">
                       <div class="flex items-center gap-3 mb-2">
                         <span class="text-3xl">${alert.icon}</span>
                         <div class="flex-1">
-                          <div class="font-bold">${alert.type}</div>
+                          <div class="font-bold">${t(alert.type, 'nameClient')}</div>
                           <div class="text-sm text-gray-400">${alert.message}</div>
+                          <div class="text-xs text-gray-500">${t(alert.type, 'descriptionClient')}</div>
                         </div>
                         <span class="px-3 py-1 rounded text-xs ${getUrgencyColor(alert.urgency)} font-bold">
                           ${alert.urgency.toUpperCase()}
@@ -395,8 +462,8 @@
                 </div>
               `}
               
-              <button onclick="state.showAlertsModal=false; render();" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold">
-                ${t.close}
+              <button onclick="showAlertsModal=false; render();" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold">
+                ${t('close')}
               </button>
             </div>
           </div>
@@ -404,23 +471,21 @@
         return;
       }
       
-      // Écran de login
-      if (state.showLoginScreen) {
+      if (showLoginScreen) {
         app.innerHTML = `
           <div class="min-h-screen flex items-center justify-center p-4">
-            <div class="card rounded-lg shadow-2xl p-8 max-w-md w-full">
-              <h1 class="text-4xl font-bold mb-2 text-center">${t.appName}</h1>
-              <p class="text-gray-400 mb-8 text-center">Bosch Car Service</p>
+            <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full">
+              <div class="absolute top-4 right-4">${getLanguageSelector()}</div>
+              <h1 class="text-4xl font-bold mb-2 text-center">${t('appName')}</h1>
+              <p class="text-gray-400 mb-8 text-center">${t('appSubtitle')}</p>
               <div class="space-y-4">
-                <input type="text" id="loginCode" placeholder="${t.loginTitle}" 
+                <input type="text" id="loginCode" placeholder="${t('loginTitle')}" 
                        class="w-full px-4 py-3 rounded-lg text-center text-xl font-bold uppercase" 
                        onkeypress="if(event.key==='Enter') login()" autofocus>
                 <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg font-bold">
-                  🔓 ${t.loginButton}
+                  🔓 ${t('loginButton')}
                 </button>
-                <p class="text-xs text-gray-500 text-center mt-4">
-                  🔧 Meccanico: PIN | 👤 Cliente: TARGA-2025
-                </p>
+                <p class="text-xs text-gray-500 text-center">🔧 PIN: 1234 | 👤 Code: TARGA-2025</p>
               </div>
             </div>
           </div>
@@ -428,26 +493,28 @@
         return;
       }
       
-      // Liste véhicules (mécanicien)
-      if (!state.currentVehicle && state.isMechanicMode) {
-        const vehiclesList = Object.values(state.vehicles);
+      if (!currentVehicle && isMechanicMode) {
+        const vehiclesList = Object.values(vehicles);
         
         app.innerHTML = `
           <div class="min-h-screen">
             <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-4 shadow-lg">
               <div class="flex justify-between items-center">
                 <div>
-                  <h1 class="text-2xl font-bold">${t.appName}</h1>
-                  <p class="text-sm text-blue-100">🔧 ${t.mechanicMode}</p>
+                  <h1 class="text-2xl font-bold">${t('appName')}</h1>
+                  <p class="text-sm text-blue-100">🔧 ${t('mechanicMode')}</p>
                 </div>
-                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded font-bold">
-                  ${t.logout}
-                </button>
+                <div class="flex items-center gap-2">
+                  ${getLanguageSelector()}
+                  <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded font-bold">
+                    ${t('logout')}
+                  </button>
+                </div>
               </div>
             </div>
             
             <div class="p-4">
-              <div class="card rounded-lg p-4 mb-4">
+              <div class="bg-white rounded-lg p-4 mb-4">
                 <h2 class="font-bold mb-3">➕ Nuovo Veicolo</h2>
                 <div class="space-y-2">
                   <input type="text" id="newTarga" placeholder="Targa *" class="w-full px-3 py-2 rounded uppercase">
@@ -463,11 +530,11 @@
                 </div>
               </div>
               
-              <h2 class="text-xl font-bold mb-3">🚗 ${t.vehicles} (${vehiclesList.length})</h2>
+              <h2 class="text-xl font-bold mb-3">🚗 ${t('vehicles')} (${vehiclesList.length})</h2>
               
               ${vehiclesList.length === 0 ? `
-                <div class="card rounded-lg p-8 text-center text-gray-400">
-                  <p>${t.noVehicles}</p>
+                <div class="bg-white rounded-lg p-8 text-center text-gray-400">
+                  <p>${t('noVehicles')}</p>
                 </div>
               ` : `
                 <div class="space-y-3">
@@ -476,8 +543,8 @@
                     const criticalCount = alerts.filter(a => a.urgency === 'critical').length;
                     
                     return `
-                      <div class="card rounded-lg p-4 cursor-pointer hover:bg-gray-700" 
-                           onclick="state.currentVehicle='${v.targa}'; render();">
+                      <div class="bg-white rounded-lg p-4 cursor-pointer hover:bg-gray-700" 
+                           onclick="currentVehicle='${v.targa}'; render();">
                         <div class="flex justify-between items-center">
                           <div>
                             <div class="flex items-center gap-2">
@@ -504,38 +571,38 @@
         return;
       }
       
-      // Détails véhicule
-      const vehicle = state.vehicles[state.currentVehicle];
+      const vehicle = vehicles[currentVehicle];
       if (!vehicle) {
-        state.currentVehicle = null;
+        currentVehicle = null;
         render();
         return;
       }
       
-      if (!state.showAddForm) {
+      if (!showAddForm) {
         const interventions = vehicle.interventi || [];
-        const alerts = calculateAlerts(vehicle, state.isClientMode);
+        const alerts = calculateAlerts(vehicle, isClientMode);
         const criticalCount = alerts.filter(a => a.urgency === 'critical').length;
         
         app.innerHTML = `
           <div class="min-h-screen">
             <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-4 shadow-lg">
               <div class="flex justify-between items-center mb-2">
-                ${state.isMechanicMode ? `
-                  <button onclick="state.currentVehicle=null; render();" class="hover:bg-blue-700 px-3 py-2 rounded">
-                    ← ${t.back}
+                ${isMechanicMode ? `
+                  <button onclick="currentVehicle=null; render();" class="hover:bg-blue-700 px-3 py-2 rounded">
+                    ← ${t('back')}
                   </button>
                 ` : '<div></div>'}
                 <div class="flex items-center gap-2">
+                  ${getLanguageSelector()}
                   ${alerts.length > 0 ? `
-                    <button onclick="state.showAlertsModal=true; render();" 
+                    <button onclick="showAlertsModal=true; render();" 
                             class="relative bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded font-bold">
-                      🔔 ${t.viewAlerts}
+                      🔔 ${t('viewAlerts')}
                       ${criticalCount > 0 ? `<span class="badge">${criticalCount}</span>` : ''}
                     </button>
                   ` : ''}
                   <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-3 py-2 rounded text-sm font-bold">
-                    ${t.logout}
+                    ${t('logout')}
                   </button>
                 </div>
               </div>
@@ -543,30 +610,56 @@
                 <h1 class="text-2xl font-bold">${vehicle.targa}</h1>
                 <p class="text-blue-100">${vehicle.marca} ${vehicle.modello}</p>
                 ${vehicle.chilometraggio ? `<p class="text-sm text-blue-100">🚗 ${parseInt(vehicle.chilometraggio).toLocaleString()} km</p>` : ''}
+                ${isClientMode ? `
+                  <div class="flex items-center gap-2 text-xs text-blue-100 mt-1">
+                    <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                    <span>☁️ ${t('realtimeActive')}</span>
+                  </div>
+                ` : ''}
               </div>
             </div>
             
+            ${alerts.length > 0 && isClientMode ? `
+              <div class="p-4">
+                <div class="bg-orange-900 bg-opacity-30 border-2 border-orange-500 rounded-lg p-4 mb-4 ${criticalCount > 0 ? 'alert-pulse' : ''}">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="text-3xl">⚠️</span>
+                      <div>
+                        <h3 class="font-bold text-lg">Attenzione!</h3>
+                        <p class="text-sm text-gray-300">${alerts.length} ${t('alerts').toLowerCase()}</p>
+                      </div>
+                    </div>
+                    <button onclick="showAlertsModal=true; render();" class="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg font-bold">
+                      ${t('viewAlerts')} →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+            
             <div class="p-4">
-              ${state.isMechanicMode ? `
-                <button onclick="state.showAddForm=true; render();" 
+              ${isMechanicMode ? `
+                <button onclick="showAddForm=true; render();" 
                         class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold mb-4">
-                  ➕ ${t.newIntervention}
+                  ➕ ${t('newIntervention')}
                 </button>
               ` : ''}
               
-              <h2 class="text-xl font-bold mb-3">📋 ${t.history} (${interventions.length})</h2>
+              <h2 class="text-xl font-bold mb-3">📋 ${t('history')} (${interventions.length})</h2>
               
               ${interventions.length === 0 ? `
-                <div class="card rounded-lg p-8 text-center text-gray-400">
-                  <p>Nessun intervento</p>
+                <div class="bg-white rounded-lg p-8 text-center text-gray-400">
+                  <p>${t('noInterventions')}</p>
                 </div>
               ` : `
                 <div class="space-y-3">
                   ${interventions.map(inter => `
-                    <div class="card rounded-lg p-4">
+                    <div class="bg-white rounded-lg p-4">
                       <div class="text-sm text-gray-400 mb-1">📅 ${inter.data || 'Data non disponibile'}</div>
                       <h3 class="font-bold text-lg text-blue-400">${inter.tipo}</h3>
                       <p class="text-gray-300 mb-2">${inter.descrizione}</p>
+                      ${inter.ricambi ? `<div class="text-sm text-gray-400 mb-1"><span class="font-semibold">🔧 ${t('parts')}:</span> ${inter.ricambi}</div>` : ''}
                       <div class="flex gap-3 text-sm">
                         ${inter.costo ? `<div class="text-green-400 font-bold">💰 €${inter.costo}</div>` : ''}
                         ${inter.chilometraggio ? `<div class="text-gray-400">🚗 ${parseInt(inter.chilometraggio).toLocaleString()} km</div>` : ''}
@@ -585,47 +678,59 @@
           <div class="min-h-screen">
             <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-4">
               <h1 class="text-xl font-bold">${vehicle.targa}</h1>
-              <p class="text-blue-100">➕ ${t.newIntervention}</p>
+              <p class="text-blue-100">➕ ${t('newIntervention')}</p>
             </div>
             
             <div class="p-4">
-              <div class="card rounded-lg p-4">
+              <div class="bg-white rounded-lg p-4">
                 <div class="space-y-3">
                   <div>
-                    <label class="block text-sm font-bold mb-1">📅 Data *</label>
+                    <label class="block text-sm font-bold mb-1">📅 ${t('date')} *</label>
                     <input type="date" id="interData" value="${today}" class="w-full px-3 py-2 rounded">
                   </div>
                   <div>
-                    <label class="block text-sm font-bold mb-1">🔧 Tipo *</label>
+                    <label class="block text-sm font-bold mb-1">🔧 ${t('type')} *</label>
                     <select id="interTipo" class="w-full px-3 py-2 rounded">
                       <option value="">Seleziona...</option>
-                      <option value="Tagliando">Tagliando</option>
-                      <option value="Riparazione">Riparazione</option>
-                      <option value="Revisione">Revisione</option>
-                      <option value="Gomme">Cambio Gomme</option>
-                      <option value="Altro">Altro</option>
+                      <option value="${t('serviceOilChange')}">${t('serviceOilChange')}</option>
+                      <option value="${t('serviceRepair')}">${t('serviceRepair')}</option>
+                      <option value="${t('serviceInspection')}">${t('serviceInspection')}</option>
+                      <option value="${t('serviceTires')}">${t('serviceTires')}</option>
+                      <option value="${t('serviceOther')}">${t('serviceOther')}</option>
                     </select>
                   </div>
                   <div>
-                    <label class="block text-sm font-bold mb-1">📝 Descrizione *</label>
+                    <label class="block text-sm font-bold mb-1">📝 ${t('description')} *</label>
                     <textarea id="interDesc" rows="3" class="w-full px-3 py-2 rounded"></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-bold mb-1">🔩 ${t('parts')}</label>
+                    <input type="text" id="interRicambi" class="w-full px-3 py-2 rounded">
                   </div>
                   <div class="grid grid-cols-2 gap-3">
                     <div>
-                      <label class="block text-sm font-bold mb-1">💰 Costo (€)</label>
+                      <label class="block text-sm font-bold mb-1">💰 ${t('cost')} (€)</label>
                       <input type="number" id="interCosto" step="0.01" class="w-full px-3 py-2 rounded">
                     </div>
                     <div>
-                      <label class="block text-sm font-bold mb-1">🚗 Km</label>
+                      <label class="block text-sm font-bold mb-1">🚗 ${t('mileage')}</label>
                       <input type="number" id="interKm" value="${vehicle.chilometraggio || ''}" class="w-full px-3 py-2 rounded">
                     </div>
                   </div>
+                  <div>
+                    <label class="block text-sm font-bold mb-1">👤 ${t('mechanic')}</label>
+                    <input type="text" id="interMeccanico" class="w-full px-3 py-2 rounded">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-bold mb-1">💬 ${t('notes')}</label>
+                    <textarea id="interNote" rows="3" class="w-full px-3 py-2 rounded"></textarea>
+                  </div>
                   <div class="flex gap-2 pt-2">
                     <button onclick="addIntervento()" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold">
-                      ✅ ${t.save}
+                      ✅ ${t('save')}
                     </button>
-                    <button onclick="state.showAddForm=false; render();" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-bold">
-                      ❌ ${t.cancel}
+                    <button onclick="showAddForm=false; render();" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-bold">
+                      ❌ ${t('cancel')}
                     </button>
                   </div>
                 </div>
@@ -636,15 +741,49 @@
       }
     }
 
-    // ========================================
-    // 🚀 INITIALISATION
-    // ========================================
-    function init() {
-      loadData();
+    async function init() {
+      loadDataLocal();
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      
+      if (code) {
+        const parts = code.toUpperCase().split('-');
+        if (parts.length >= 2) {
+          const targa = parts.slice(0, -1).join('-');
+          
+          if (USE_FIREBASE) {
+            if (!window.firebaseReady) {
+              await new Promise(resolve => {
+                window.addEventListener('firebaseReady', resolve, { once: true });
+              });
+            }
+            
+            const vehicleData = await loadFromFirestore(targa, true);
+            
+            if (vehicleData) {
+              vehicles[targa] = vehicleData;
+              saveDataLocal();
+              
+              const year = parts[parts.length - 1];
+              const currentYear = new Date().getFullYear().toString();
+              const lastYear = (currentYear - 1).toString();
+              
+              if (year === currentYear || year === lastYear) {
+                isClientMode = true;
+                isMechanicMode = false;
+                showLoginScreen = false;
+                currentVehicle = targa;
+                showNotification('✅ Accesso automatico - Sync attiva');
+              }
+            }
+          }
+        }
+      }
       
       // Véhicule de démo si vide
-      if (Object.keys(state.vehicles).length === 0) {
-        state.vehicles['AB123CD'] = {
+      if (Object.keys(vehicles).length === 0) {
+        vehicles['AB123CD'] = {
           targa: 'AB123CD',
           marca: 'Fiat',
           modello: 'Panda',
@@ -664,10 +803,16 @@
           clientCode: 'AB123CD-2025',
           createdAt: '2024-01-01T00:00:00'
         };
-        saveData();
+        saveDataLocal();
       }
       
       render();
+      
+      window.addEventListener('online', () => {
+        if (isClientMode && currentVehicle && USE_FIREBASE) {
+          loadFromFirestore(currentVehicle, true);
+        }
+      });
     }
 
     init();
