@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="description" content="Sistema di tracciamento interventi meccanici - Tano Evoluzione"/>
-  <title>Tano Evoluzione - Sistema NFC</title>
+  <title>Tano Evoluzione - Sistema NFC v1.8</title>
 
-  <script src="https://cdn.tailwindcss.com "></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js "></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js "></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js "></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
   <style>
     html, body { height: 100%; margin: 0; }
@@ -51,6 +51,8 @@
       outline: none; box-shadow: 0 0 0 4px rgba(59,130,246,0.3); border-color: #3b82f6 !important;
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     .notification {
       position: fixed; top: 20px; right: 20px; padding: 16px 24px; border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; animation: slideIn 0.3s ease-out;
@@ -97,8 +99,8 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js ";
-    import { getFirestore, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js ";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getFirestore, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBiU0Q_xfHBLlGHh0vbeZpBAc1uoRz554",
@@ -208,7 +210,6 @@
         reminderInsurance: "Assicurazione in scadenza", days: "giorni", plateInvalid: "Formato targa non valido",
         emailInvalid: "Email non valida", phoneInvalid: "Telefono non valido", stats: "Statistiche", partsLabel: "Ricambi:",
         thisMonth: "Questo Mese", total: "Totale",
-        // NEW TRANSLATIONS
         typeOther: "Altro",
         clientInfo: "Informazioni cliente",
         clientName: "Nome cliente",
@@ -221,7 +222,10 @@
         serviceRepair: "Riparazione",
         serviceInspection: "Revisione",
         serviceTires: "Cambio gomme",
-        serviceOther: "Altro"
+        serviceOther: "Altro",
+        realtimeActive: "Sincronizzazione tempo reale attiva",
+        syncingData: "Sincronizzazione dati...",
+        clientNotified: "Cliente notificato"
       },
       fr: {
         appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Entrez le code:",
@@ -273,7 +277,6 @@
         reminderInsurance: "Assurance à échéance", days: "jours", plateInvalid: "Format plaque non valide",
         emailInvalid: "Email non valide", phoneInvalid: "Téléphone non valide", stats: "Statistiques", partsLabel: "Pièces :",
         thisMonth: "Ce Mois", total: "Total",
-        // NEW TRANSLATIONS
         typeOther: "Autre",
         clientInfo: "Infos client",
         clientName: "Nom client",
@@ -286,7 +289,10 @@
         serviceRepair: "Réparation",
         serviceInspection: "Révision",
         serviceTires: "Changement pneus",
-        serviceOther: "Autre"
+        serviceOther: "Autre",
+        realtimeActive: "Synchronisation temps réel active",
+        syncingData: "Synchronisation des données...",
+        clientNotified: "Client notifié"
       },
       en: {
         appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Enter the code:",
@@ -339,7 +345,6 @@
         reminderInsurance: "Insurance expiry", days: "days", plateInvalid: "Invalid plate format",
         emailInvalid: "Invalid email", phoneInvalid: "Invalid phone", stats: "Statistics", partsLabel: "Parts:",
         thisMonth: "This Month", total: "Total",
-        // NEW TRANSLATIONS
         typeOther: "Other",
         clientInfo: "Client info",
         clientName: "Client name",
@@ -352,7 +357,10 @@
         serviceRepair: "Repair",
         serviceInspection: "Inspection",
         serviceTires: "Tire Change",
-        serviceOther: "Other"
+        serviceOther: "Other",
+        realtimeActive: "Real-time sync active",
+        syncingData: "Syncing data...",
+        clientNotified: "Client notified"
       }
     };
 
@@ -378,6 +386,23 @@
       notification.textContent = message;
       document.body.appendChild(notification);
       setTimeout(() => { notification.style.animation = 'slideIn 0.3s ease-out reverse'; setTimeout(() => notification.remove(), 300); }, 3000);
+    }
+
+    // ✅ NOUVELLE FONCTION : Indicateur de synchronisation
+    function showSyncIndicator(message = "🔄 Synchronisation...") {
+      const existing = document.getElementById('syncIndicator');
+      if (existing) existing.remove();
+      
+      const indicator = document.createElement('div');
+      indicator.id = 'syncIndicator';
+      indicator.className = 'fixed top-20 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center gap-2';
+      indicator.innerHTML = `
+        <div class="loading" style="width: 16px; height: 16px; border-width: 2px;"></div>
+        <span class="text-sm">${message}</span>
+      `;
+      document.body.appendChild(indicator);
+      
+      setTimeout(() => indicator.remove(), 2000);
     }
 
     function showOfflineIndicator() {
@@ -410,7 +435,7 @@
     async function syncToFirestore(targa, vehicleData) {
       if (!USE_FIREBASE || !window.firebaseDB) return;
       try {
-        const { setDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js ");
+        const { setDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
         await setDoc(doc(window.firebaseDB, 'vehicles', targa), vehicleData);
       } catch (error) { 
         showNotification('⚠️ Sync error, but saved locally', 'error');
@@ -419,12 +444,40 @@
       }
     }
 
-    async function loadFromFirestore(targa) {
+    // ✅ FONCTION MODIFIÉE : Support du temps réel
+    async function loadFromFirestore(targa, enableRealtime = false) {
       if (!USE_FIREBASE || !window.firebaseDB) return null;
       try {
-        const { getDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js ");
-        const docSnap = await getDoc(doc(window.firebaseDB, 'vehicles', targa));
-        return docSnap.exists() ? docSnap.data() : null;
+        const { getDoc, doc, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
+        
+        if (enableRealtime) {
+          // ✅ Mode temps réel pour le client
+          if (realtimeUnsubscribe) realtimeUnsubscribe();
+          
+          realtimeUnsubscribe = onSnapshot(doc(window.firebaseDB, 'vehicles', targa), (docSnap) => {
+            if (docSnap.exists()) {
+              vehicles[targa] = docSnap.data();
+              saveDataLocal();
+              if (!showLoginScreen && currentVehicle === targa) {
+                render();
+                console.log("✅ Intervention mise à jour en temps réel!");
+              }
+            }
+          }, (error) => {
+            console.error("❌ Erreur listener temps réel:", error);
+            isOffline = true;
+            showOfflineIndicator();
+          });
+          
+          // Retourner aussi les données initiales
+          const docSnap = await getDoc(doc(window.firebaseDB, 'vehicles', targa));
+          return docSnap.exists() ? docSnap.data() : null;
+          
+        } else {
+          // Mode normal : lecture unique
+          const docSnap = await getDoc(doc(window.firebaseDB, 'vehicles', targa));
+          return docSnap.exists() ? docSnap.data() : null;
+        }
       } catch (error) { 
         isOffline = true;
         showOfflineIndicator();
@@ -435,7 +488,7 @@
     async function deleteFromFirestore(targa) {
       if (!USE_FIREBASE || !window.firebaseDB) return;
       try {
-        const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js ");
+        const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
         await deleteDoc(doc(window.firebaseDB, 'vehicles', targa));
       } catch (error) {}
     }
@@ -443,7 +496,7 @@
     async function loadAllVehiclesFromFirestore() {
       if (!USE_FIREBASE || !window.firebaseDB) { loadDataLocal(); return; }
       try {
-        const { collection, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js ");
+        const { collection, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
         if (realtimeUnsubscribe) realtimeUnsubscribe();
         realtimeUnsubscribe = onSnapshot(collection(window.firebaseDB, 'vehicles'), (snapshot) => {
           snapshot.docChanges().forEach((change) => {
@@ -504,32 +557,51 @@
       return reminders;
     }
 
+    // ✅ FONCTION MODIFIÉE : Activation temps réel pour client
     async function login() {
       const code = document.getElementById('loginCode').value.trim();
       if (!code) return showNotification(`❌ ${t('invalidCode')}`, 'error');
+      
+      // Login mécanicien
       if (code === MECHANIC_PIN) {
-        isMechanicMode = true; isClientMode = false; showLoginScreen = false; currentVehicle = null;
+        isMechanicMode = true;
+        isClientMode = false;
+        showLoginScreen = false;
+        currentVehicle = null;
         showNotification(`✅ ${t('mechanicAccess')}`);
         await loadAllVehiclesFromFirestore();
         render();
         return;
       }
+      
+      // Login client
       const parts = code.toUpperCase().split('-');
       if (parts.length >= 2) {
-        const year = parts[parts.length - 1], targa = parts.slice(0, -1).join('-');
-        const vehicleData = await loadFromFirestore(targa);
+        const year = parts[parts.length - 1];
+        const targa = parts.slice(0, -1).join('-');
+        
+        // ✅ Charger depuis Firebase avec temps réel
+        const vehicleData = await loadFromFirestore(targa, true);
+        
         if (vehicleData) {
           vehicles[targa] = vehicleData;
           saveDataLocal();
-          const currentYear = new Date().getFullYear().toString(), lastYear = (currentYear - 1).toString();
+          
+          const currentYear = new Date().getFullYear().toString();
+          const lastYear = (new Date().getFullYear() - 1).toString();
+          
           if (year === currentYear || year === lastYear) {
-            isClientMode = true; isMechanicMode = false; showLoginScreen = false; currentVehicle = targa;
-            showNotification(`✅ ${t('welcome')}`);
+            isClientMode = true;
+            isMechanicMode = false;
+            showLoginScreen = false;
+            currentVehicle = targa;
+            showNotification(`✅ ${t('welcome')} - ${t('realtimeActive')}`);
             render();
             return;
           }
         }
       }
+      
       showNotification(`❌ ${t('invalidCode')}`, 'error');
     }
 
@@ -654,6 +726,7 @@
       setTimeout(() => render(), 100);
     }
 
+    // ✅ FONCTION MODIFIÉE : Synchronisation améliorée
     async function addIntervento() {
       if (!isMechanicMode) return showNotification(`❌ ${t('accessDenied')}`, 'error');
       
@@ -671,7 +744,9 @@
       const previewImages = document.querySelectorAll('#photoPreview img');
       previewImages.forEach(img => photos.push(img.src));
       
-      if (!tipo || !descrizione) return showNotification(`❌ ${t('typeDescRequired')}`, 'error');
+      if (!tipo || !descrizione) {
+        return showNotification(`❌ ${t('typeDescRequired')}`, 'error');
+      }
       
       const intervento = { 
         id: Date.now(), 
@@ -688,10 +763,22 @@
         timestamp: new Date().toISOString() 
       };
       
+      // Ajouter localement
       vehicles[currentVehicle].interventi.unshift(intervento);
       if (km) vehicles[currentVehicle].chilometraggio = km;
       saveDataLocal();
-      await syncToFirestore(currentVehicle, vehicles[currentVehicle]);
+      
+      // ✅ Synchroniser et attendre
+      showSyncIndicator(`🔄 ${t('syncingData')}`);
+      
+      try {
+        await syncToFirestore(currentVehicle, vehicles[currentVehicle]);
+        showNotification(`✅ ${t('dataSaved')} - ${t('clientNotified')}`);
+      } catch (error) {
+        console.error("Erreur sync:", error);
+        showNotification(`⚠️ Sauvegardé localement, sync en attente`, 'error');
+      }
+      
       showAddForm = false;
       render();
     }
@@ -788,7 +875,7 @@
       const v = vehicles[targa];
       const link = getClientLink(targa);
       const msg = `${t('whatsappMessage')} ${targa} (${v.marca} ${v.modello}):\n\n${link}\n\n${t('shareMessage')}`;
-      window.open(`https://wa.me/?text= ${encodeURIComponent(msg)}`, '_blank');
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     function shareViaEmail(targa) {
@@ -1300,7 +1387,7 @@
               </div>
               ${Object.keys(vehicles).length > 3 ? `<div class="mb-4"><input type="text" placeholder="🔍 ${t('search')}" class="w-full px-4 py-3 border-2 rounded-lg" oninput="updateSearch(this.value)" value="${searchQuery}"></div>` : ''}
               <h2 class="text-xl font-bold mb-3 text-white">🚗 ${t('vehicles')} (${vehiclesList.length})</h2>
-                            ${vehiclesList.length === 0 ? `<div class="bg-white rounded-lg shadow p-8 text-center text-gray-400"><p>${searchQuery ? t('noVehiclesFound') : t('noVehicles')}</p></div>` : `
+              ${vehiclesList.length === 0 ? `<div class="bg-white rounded-lg shadow p-8 text-center text-gray-400"><p>${searchQuery ? t('noVehiclesFound') : t('noVehicles')}</p></div>` : `
                 <div class="space-y-3">
                   ${vehiclesList.map(v => {
                     const stats = getVehicleStats(v.targa);
@@ -1309,7 +1396,7 @@
                           <div class="flex-1 cursor-pointer" onclick="currentVehicle='${v.targa}'; render();">
                             <span class="text-xl font-bold">${v.targa}</span>
                             <p class="text-gray-400">${v.marca || ''} ${v.modello || ''} ${v.anno ? `(${v.anno})` : ''}</p>
-                            ${v.chilometraggio ? `<p class="text-sm text-gray-500">📍 ${v.chilometraggio} km</p>` : ''}
+                            ${v.chilometraggio ? `<p class="text-sm text-gray-500">🚗 ${v.chilometraggio} km</p>` : ''}
                             ${v.cliente?.nome ? `<p class="text-sm font-semibold text-blue-400 mt-1">👤 ${v.cliente.nome}</p>` : ''}
                             ${v.cliente?.telefono ? `<p class="text-xs text-gray-500">📞 ${v.cliente.telefono}</p>` : ''}
                             <p class="text-xs text-gray-500 mt-1">${stats.count} ${t('interventions')} • €${stats.totalCosto.toFixed(2)}</p>
@@ -1352,8 +1439,12 @@
                 <div>
                   <h1 class="text-2xl font-bold">${vehicle.targa}</h1>
                   <p class="text-blue-100">${vehicle.marca || ''} ${vehicle.modello || ''} ${vehicle.anno ? `(${vehicle.anno})` : ''}</p>
-                  ${vehicle.chilometraggio ? `<p class="text-sm text-blue-100">📍 ${vehicle.chilometraggio} km</p>` : ''}
+                  ${vehicle.chilometraggio ? `<p class="text-sm text-blue-100">🚗 ${vehicle.chilometraggio} km</p>` : ''}
                   ${vehicle.cliente?.nome ? `<p class="text-sm text-blue-100 mt-1">👤 ${vehicle.cliente.nome}</p>` : ''}
+                  ${isClientMode ? `<div class="flex items-center gap-2 text-xs text-blue-100 mt-1">
+                    <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                    <span>☁️ ${t('realtimeActive')}</span>
+                  </div>` : ''}
                 </div>
               </div>
             </div>
@@ -1361,9 +1452,7 @@
               <!-- Section Appuntamenti -->
               <div class="bg-white rounded-lg shadow p-4 mb-4">
                 <div class="flex justify-between items-center mb-3">
-                  <h2 class="text-xl font
-
--bold mb-3 text-white">📅 ${t('appointments')}</h2>
+                  <h2 class="text-xl font-bold text-white">📅 ${t('appointments')}</h2>
                   ${isMechanicMode ? `<button onclick="showAppointmentForm=true; render();" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 font-semibold">+ ${t('newAppointment')}</button>` : ''}
                 </div>
                 
@@ -1456,7 +1545,7 @@
                       </div>` : ''}
                       <div class="flex flex-wrap gap-3 mt-2 text-sm">
                         ${inter.costo ? `<div class="text-green-400 font-semibold">💰 ${inter.costo} €</div>` : ''}
-                        ${inter.chilometraggio ? `<div class="text-gray-400 font-semibold">📍 ${inter.chilometraggio} km</div>` : ''}
+                        ${inter.chilometraggio ? `<div class="text-gray-400 font-semibold">🚗 ${inter.chilometraggio} km</div>` : ''}
                         ${inter.meccanico ? `<div class="text-gray-400">👤 ${inter.meccanico}</div>` : ''}
                       </div>
                     </div>`).join('')}
@@ -1491,7 +1580,7 @@
                   <div><label class="block text-sm font-semibold mb-1">🔩 ${t('parts')}</label><input type="text" id="interventoRicambi" placeholder="${t('partsExample')}" class="w-full px-3 py-2 border rounded"></div>
                   <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-sm font-semibold mb-1">💰 ${t('cost')} (€)</label><input type="number" id="interventoCosto" step="0.01" placeholder="0.00" class="w-full px-3 py-2 border rounded"></div>
-                    <div><label class="block text-sm font-semibold mb-1">📍 ${t('mileage')}</label><input type="number" id="interventoKm" value="${vehicle.chilometraggio || ''}" placeholder="km" class="w-full px-3 py-2 border rounded"></div>
+                    <div><label class="block text-sm font-semibold mb-1">🚗 ${t('mileage')}</label><input type="number" id="interventoKm" value="${vehicle.chilometraggio || ''}" placeholder="km" class="w-full px-3 py-2 border rounded"></div>
                   </div>
                   <div><label class="block text-sm font-semibold mb-1">👤 ${t('mechanic')}</label><input type="text" id="interventoMeccanico" placeholder="${t('mechanicName')}" class="w-full px-3 py-2 border rounded"></div>
                   <div><label class="block text-sm font-semibold mb-1">💬 ${t('notes')}</label><textarea id="interventoNote" rows="3" placeholder="${t('observations')}" class="w-full px-3 py-2 border rounded"></textarea></div>
@@ -1525,38 +1614,64 @@
       }
     }
 
+    // ✅ FONCTION MODIFIÉE : Init avec support temps réel client
     async function init() {
       loadDataLocal();
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
+      
       if (code) {
         const targa = verifyClientCode(code);
         if (targa) {
-          isClientMode = true; isMechanicMode = false; showLoginScreen = false; currentVehicle = targa;
+          isClientMode = true;
+          isMechanicMode = false;
+          showLoginScreen = false;
+          currentVehicle = targa;
           window.history.replaceState({}, document.title, window.location.pathname);
+          
+          // ✅ Charger avec listener temps réel
+          if (USE_FIREBASE) {
+            if (!window.firebaseReady) {
+              await new Promise(resolve => {
+                window.addEventListener('firebaseReady', resolve, { once: true });
+              });
+            }
+            
+            console.log("🔄 Activation synchronisation temps réel pour client...");
+            const vehicleData = await loadFromFirestore(targa, true);
+            
+            if (vehicleData) {
+              vehicles[targa] = vehicleData;
+              saveDataLocal();
+              showNotification(`✅ ${t('autoAccess')} - ${t('realtimeActive')}`);
+            }
+          }
         }
       }
+      
       render();
       
-      window.addEventListener('online', () => { isOffline = false; showOfflineIndicator(); });
-      window.addEventListener('offline', () => { isOffline = true; showOfflineIndicator(); });
+      // Listeners online/offline
+      window.addEventListener('online', () => {
+        isOffline = false;
+        showOfflineIndicator();
+        // ✅ Réactiver la sync si on revient en ligne
+        if (isClientMode && currentVehicle && USE_FIREBASE) {
+          loadFromFirestore(currentVehicle, true);
+        }
+      });
       
-      if (USE_FIREBASE) {
-        if (!window.firebaseReady) await new Promise(resolve => { window.addEventListener('firebaseReady', resolve, { once: true }); });
-        if (code && !verifyClientCode(code)) {
-          const parts = code.toUpperCase().split('-');
-          if (parts.length >= 2) {
-            const year = parts[parts.length - 1], targa = parts.slice(0, -1).join('-');
-            const vehicleData = await loadFromFirestore(targa);
-            if (vehicleData) {
-              vehicles[targa] = vehicleData; saveDataLocal();
-              const currentYear = new Date().getFullYear().toString(), lastYear = (currentYear - 1).toString();
-              if (year === currentYear || year === lastYear) {
-                isClientMode = true; isMechanicMode = false; showLoginScreen = false; currentVehicle = targa;
-                showNotification(`✅ ${t('autoAccess')}`); render();
-              }
-            } else { showNotification(`❌ ${t('linkInvalid')}`, 'error'); }
-          }
+      window.addEventListener('offline', () => {
+        isOffline = true;
+        showOfflineIndicator();
+      });
+      
+      // Charger tous les véhicules pour le mécanicien
+      if (USE_FIREBASE && !code) {
+        if (!window.firebaseReady) {
+          await new Promise(resolve => {
+            window.addEventListener('firebaseReady', resolve, { once: true });
+          });
         }
       }
     }
