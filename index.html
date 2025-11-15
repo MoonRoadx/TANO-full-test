@@ -6,10 +6,10 @@
   <meta name="description" content="Sistema di tracciamento interventi meccanici - Tano Evoluzione"/>
   <title>Tano Evoluzione - Sistema NFC</title>
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.tailwindcss.com "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js "></script>
 
   <style>
     html, body { height: 100%; margin: 0; }
@@ -97,8 +97,8 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getFirestore, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js ";
+    import { getFirestore, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js ";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBiU0Q_xfHBLlGHh0vbeZpBAc1uoRz554",
@@ -207,7 +207,21 @@
         reminders: "Promemoria", reminderOilChange: "Prossimo tagliando", reminderInspection: "Prossima revisione",
         reminderInsurance: "Assicurazione in scadenza", days: "giorni", plateInvalid: "Formato targa non valido",
         emailInvalid: "Email non valida", phoneInvalid: "Telefono non valido", stats: "Statistiche", partsLabel: "Ricambi:",
-        thisMonth: "Questo Mese", total: "Totale"
+        thisMonth: "Questo Mese", total: "Totale",
+        // NEW TRANSLATIONS
+        typeOther: "Altro",
+        clientInfo: "Informazioni cliente",
+        clientName: "Nome cliente",
+        clientPhone: "Telefono",
+        clientEmail: "Email",
+        selectBrandFirst: "Seleziona prima una marca",
+        optional: "(opzionale)",
+        photoUploadHint: "Puoi scattare foto o selezionarle dalla galleria",
+        serviceOilChange: "Tagliando",
+        serviceRepair: "Riparazione",
+        serviceInspection: "Revisione",
+        serviceTires: "Cambio gomme",
+        serviceOther: "Altro"
       },
       fr: {
         appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Entrez le code:",
@@ -258,7 +272,21 @@
         reminders: "Rappels", reminderOilChange: "Prochain vidange", reminderInspection: "Prochaine révision",
         reminderInsurance: "Assurance à échéance", days: "jours", plateInvalid: "Format plaque non valide",
         emailInvalid: "Email non valide", phoneInvalid: "Téléphone non valide", stats: "Statistiques", partsLabel: "Pièces :",
-        thisMonth: "Ce Mois", total: "Total"
+        thisMonth: "Ce Mois", total: "Total",
+        // NEW TRANSLATIONS
+        typeOther: "Autre",
+        clientInfo: "Infos client",
+        clientName: "Nom client",
+        clientPhone: "Téléphone",
+        clientEmail: "Email",
+        selectBrandFirst: "Sélectionnez d'abord une marque",
+        optional: "(optionnel)",
+        photoUploadHint: "Vous pouvez prendre des photos ou les sélectionner depuis la galerie",
+        serviceOilChange: "Vidange",
+        serviceRepair: "Réparation",
+        serviceInspection: "Révision",
+        serviceTires: "Changement pneus",
+        serviceOther: "Autre"
       },
       en: {
         appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Enter the code:",
@@ -300,7 +328,8 @@
         print: "Print", download: "Download PDF", invoiceGenerated: "PDF generated successfully", invoiceError: "Error generating PDF",
         whatsappMessage: "Hello! Here is the link to view your vehicle's history",
         emailSubject: "Vehicle History", emailBody: "Dear Customer,\n\nHere is the link to view the complete history of your vehicle",
-        emailBodyEnd: "You will be able to view all the interventions carried out on your vehicle at any time.\n\nBest regards,\nTano Evoluzione - Bosch Car Service", shareMessage: "Tano Evoluzione - Bosch Car Service",
+        emailBodyEnd: "You will be able to view all the interventions carried out on your vehicle at any time.\n\nBest regards,\nTano Evoluzione - Bosch Car Service", 
+        shareMessage: "Tano Evoluzione - Bosch Car Service",
         dashboard: "Dashboard", totalRevenue: "Total Revenue", monthlyStats: "Monthly Stats", topCustomers: "Top Customers",
         searchAdvanced: "Advanced Search", searchByDate: "Date from", searchByType: "Type", searchByMechanic: "Mechanic",
         searchByCost: "Min cost", searchByCostMax: "Max cost", applyFilter: "Apply Filters", resetFilter: "Reset",
@@ -309,7 +338,21 @@
         reminders: "Reminders", reminderOilChange: "Next oil change", reminderInspection: "Next inspection",
         reminderInsurance: "Insurance expiry", days: "days", plateInvalid: "Invalid plate format",
         emailInvalid: "Invalid email", phoneInvalid: "Invalid phone", stats: "Statistics", partsLabel: "Parts:",
-        thisMonth: "This Month", total: "Total"
+        thisMonth: "This Month", total: "Total",
+        // NEW TRANSLATIONS
+        typeOther: "Other",
+        clientInfo: "Client info",
+        clientName: "Client name",
+        clientPhone: "Phone",
+        clientEmail: "Email",
+        selectBrandFirst: "Select brand first",
+        optional: "(optional)",
+        photoUploadHint: "You can take photos or select from gallery",
+        serviceOilChange: "Oil Change",
+        serviceRepair: "Repair",
+        serviceInspection: "Inspection",
+        serviceTires: "Tire Change",
+        serviceOther: "Other"
       }
     };
 
@@ -367,7 +410,7 @@
     async function syncToFirestore(targa, vehicleData) {
       if (!USE_FIREBASE || !window.firebaseDB) return;
       try {
-        const { setDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
+        const { setDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js ");
         await setDoc(doc(window.firebaseDB, 'vehicles', targa), vehicleData);
       } catch (error) { 
         showNotification('⚠️ Sync error, but saved locally', 'error');
@@ -379,7 +422,7 @@
     async function loadFromFirestore(targa) {
       if (!USE_FIREBASE || !window.firebaseDB) return null;
       try {
-        const { getDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
+        const { getDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js ");
         const docSnap = await getDoc(doc(window.firebaseDB, 'vehicles', targa));
         return docSnap.exists() ? docSnap.data() : null;
       } catch (error) { 
@@ -392,7 +435,7 @@
     async function deleteFromFirestore(targa) {
       if (!USE_FIREBASE || !window.firebaseDB) return;
       try {
-        const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
+        const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js ");
         await deleteDoc(doc(window.firebaseDB, 'vehicles', targa));
       } catch (error) {}
     }
@@ -400,7 +443,7 @@
     async function loadAllVehiclesFromFirestore() {
       if (!USE_FIREBASE || !window.firebaseDB) { loadDataLocal(); return; }
       try {
-        const { collection, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
+        const { collection, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js ");
         if (realtimeUnsubscribe) realtimeUnsubscribe();
         realtimeUnsubscribe = onSnapshot(collection(window.firebaseDB, 'vehicles'), (snapshot) => {
           snapshot.docChanges().forEach((change) => {
@@ -745,7 +788,7 @@
       const v = vehicles[targa];
       const link = getClientLink(targa);
       const msg = `${t('whatsappMessage')} ${targa} (${v.marca} ${v.modello}):\n\n${link}\n\n${t('shareMessage')}`;
-      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+      window.open(`https://wa.me/?text= ${encodeURIComponent(msg)}`, '_blank');
     }
 
     function shareViaEmail(targa) {
@@ -1118,11 +1161,11 @@
                   <div><label class="block text-sm font-semibold mb-1">🔧 ${t('appointmentType')} *</label>
                     <select id="appointmentTipo" class="w-full px-3 py-2 border rounded">
                       <option value="">${t('selectType')}</option>
-                      <option value="Tagliando">Tagliando</option>
-                      <option value="Riparazione">Riparazione</option>
-                      <option value="Revisione">Revisione</option>
-                      <option value="Gomme">Cambio gomme</option>
-                      <option value="Altro">${t('typeOther')}</option>
+                      <option value="Tagliando">${t('serviceOilChange')}</option>
+                      <option value="Riparazione">${t('serviceRepair')}</option>
+                      <option value="Revisione">${t('serviceInspection')}</option>
+                      <option value="Gomme">${t('serviceTires')}</option>
+                      <option value="Altro">${t('serviceOther')}</option>
                     </select>
                   </div>
                   <div><label class="block text-sm font-semibold mb-1">📝 ${t('appointmentNotes')}</label><textarea id="appointmentNote" rows="3" placeholder="Note per l'appuntamento..." class="w-full px-3 py-2 border rounded"></textarea></div>
@@ -1318,7 +1361,9 @@
               <!-- Section Appuntamenti -->
               <div class="bg-white rounded-lg shadow p-4 mb-4">
                 <div class="flex justify-between items-center mb-3">
-                  <h2 class="text-xl font-bold text-white">📅 ${t('appointments')}</h2>
+                  <h2 class="text-xl font
+
+-bold mb-3 text-white">📅 ${t('appointments')}</h2>
                   ${isMechanicMode ? `<button onclick="showAppointmentForm=true; render();" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 font-semibold">+ ${t('newAppointment')}</button>` : ''}
                 </div>
                 
@@ -1331,7 +1376,13 @@
                             <p class="font-bold text-purple-400">${app.data} ${app.ora || ''}</p>
                             <p class="text-sm text-gray-300">${app.tipo}</p>
                             ${app.note ? `<p class="text-xs text-gray-500 mt-1">${app.note}</p>` : ''}
-                            <span class="inline-block mt-1 px-2 py-1 text-xs rounded ${app.stato === 'completato' ? 'bg-green-600' : app.stato === 'cancellato' ? 'bg-red-600' : 'bg-purple-600'}">${t('status' + app.stato.charAt(0).toUpperCase() + app.stato.slice(1)) || app.stato}</span>
+                            <span class="inline-block mt-1 px-2 py-1 text-xs rounded ${app.stato === 'completato' ? 'bg-green-600' : app.stato === 'cancellato' ? 'bg-red-600' : 'bg-purple-600'}">
+                              ${t({
+                                'prenotato': 'statusBooked',
+                                'completato': 'statusCompleted', 
+                                'cancellato': 'statusCancelled'
+                              }[app.stato] || 'statusBooked')}
+                            </span>
                           </div>
                           ${isMechanicMode ? `<button onclick="deleteAppointment(${app.id})" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded text-sm font-bold">✕</button>` : ''}
                         </div>
@@ -1358,9 +1409,9 @@
                       <div><label class="block text-sm font-semibold mb-1">🔧 ${t('searchByType')}</label>
                         <select id="filterType" onchange="filters.type=this.value" class="w-full px-3 py-2 border rounded">
                           <option value="">${t('selectType')}</option>
-                          <option value="Tagliando" ${filters.type === 'Tagliando' ? 'selected' : ''}>Tagliando</option>
-                          <option value="Riparazione" ${filters.type === 'Riparazione' ? 'selected' : ''}>Riparazione</option>
-                          <option value="Revisione" ${filters.type === 'Revisione' ? 'selected' : ''}>Revisione</option>
+                          <option value="Tagliando" ${filters.type === 'Tagliando' ? 'selected' : ''}>${t('serviceOilChange')}</option>
+                          <option value="Riparazione" ${filters.type === 'Riparazione' ? 'selected' : ''}>${t('serviceRepair')}</option>
+                          <option value="Revisione" ${filters.type === 'Revisione' ? 'selected' : ''}>${t('serviceInspection')}</option>
                         </select>
                       </div>
                       <div><label class="block text-sm font-semibold mb-1">👤 ${t('searchByMechanic')}</label><input type="text" id="filterMechanic" value="${filters.mechanic}" onchange="filters.mechanic=this.value" placeholder="${t('mechanicName')}" class="w-full px-3 py-2 border rounded"></div>
@@ -1429,11 +1480,11 @@
                   <div><label class="block text-sm font-semibold mb-1">🔧 ${t('type')} *</label>
                     <select id="interventoTipo" class="w-full px-3 py-2 border rounded">
                       <option value="">${t('selectType')}</option>
-                      <option value="Tagliando">Tagliando</option>
-                      <option value="Riparazione">Riparazione</option>
-                      <option value="Revisione">Revisione</option>
-                      <option value="Gomme">Cambio gomme</option>
-                      <option value="Altro">${t('typeOther')}</option>
+                      <option value="Tagliando">${t('serviceOilChange')}</option>
+                      <option value="Riparazione">${t('serviceRepair')}</option>
+                      <option value="Revisione">${t('serviceInspection')}</option>
+                      <option value="Gomme">${t('serviceTires')}</option>
+                      <option value="Altro">${t('serviceOther')}</option>
                     </select>
                   </div>
                   <div><label class="block text-sm font-semibold mb-1">📝 ${t('description')} *</label><textarea id="interventoDesc" rows="3" placeholder="${t('interventionDetails')}" class="w-full px-3 py-2 border rounded"></textarea></div>
@@ -1456,10 +1507,10 @@
                   </div>
                   
                   <div class="border-t border-gray-600 pt-3 mt-3">
-                    <h3 class="text-sm font-semibold text-gray-300 mb-2">📸 ${t('photos')} (${t('optional')})</h3>
+                    <h3 class="text-sm font-semibold text-gray-300 mb-2">📸 ${t('photos')} ${t('optional')}</h3>
                     <input type="file" id="photoInput" multiple accept="image/*" capture="environment" 
                            class="w-full px-3 py-2 border rounded bg-gray-800 text-white border-gray-600 text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white">
-                    <p class="text-xs text-gray-500 mt-1">🤖 Puoi scattare foto o selezionarle dalla galleria</p>
+                    <p class="text-xs text-gray-500 mt-1">🤖 ${t('photoUploadHint')}</p>
                     <div id="photoPreview" class="grid grid-cols-3 gap-2 mt-3"></div>
                   </div>
                   
@@ -1514,5 +1565,3 @@
   </script>
 </body>
 </html>
-
-
