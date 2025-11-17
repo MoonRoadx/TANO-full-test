@@ -1,10 +1,21 @@
-<!DOCTYPE html>
+const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    try {
+      await enableIndexedDbPersistence(db);
+      console.log("✅ Mode hors ligne activé");
+    } catch (err) {
+      if (err.code === 'failed-precondition') {
+        console.log("⚠️ Plusieurs onglets ouverts, persistance désactivée");
+      } else if (err.code === 'unimplemented') {
+        console.log("⚠️ Navigateur ne s<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="description" content="Sistema di tracciamento interventi meccanici - Tano Evoluzione"/>
   <title>Tano Evoluzione - Sistema NFC v1.8</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
