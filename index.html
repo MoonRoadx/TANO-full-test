@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="description" content="Sistema di tracciamento interventi meccanici - Tano Evoluzione"/>
   <title>Tano Evoluzione - Sistema NFC v1.8</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -15,8 +16,7 @@
     html, body { height: 100%; margin: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: url('Background.png') no-repeat center center fixed;
-      background-size: cover;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       color: white;
       min-height: 100vh;
       opacity: 0;
@@ -118,7 +118,13 @@
       await enableIndexedDbPersistence(db);
       console.log("✅ Mode hors ligne activé");
     } catch (err) {
-      console.log("⚠️ Erreur persistance:", err.code);
+      if (err.code === 'failed-precondition') {
+        console.log("⚠️ Plusieurs onglets ouverts, persistance désactivée");
+      } else if (err.code === 'unimplemented') {
+        console.log("⚠️ Navigateur ne supporte pas la persistance");
+      } else {
+        console.log("⚠️ Erreur persistance:", err.code);
+      }
     }
     
     window.firebaseDB = db;
@@ -128,6 +134,19 @@
   </script>
 
   <script>
+    // Gestion globale des erreurs
+    window.addEventListener('error', function(e) {
+      if (e.message.includes('favicon')) {
+        e.preventDefault();
+        return;
+      }
+      console.error('Erreur:', e.message);
+    });
+
+    window.addEventListener('unhandledrejection', function(e) {
+      console.error('Promise rejetée:', e.reason);
+      e.preventDefault();
+    });
     const MECHANIC_PIN = "1234";
     const USE_FIREBASE = true;
 
@@ -244,11 +263,11 @@
     const translations = {
       it: {
         appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Inserisci il codice:",
-        loginPlaceholder: "Codice Meccanico o Cliente", loginButton: "Accedi", loginMechanic: "Meccanico: Usa il PIN",
-        loginClient: "Cliente: Usa il codice ricevuto o clicca sul link", loginRealtimeSync: "Dati sincronizzati in tempo reale",
+        loginPlaceholder: "CODICE MECCANICO O CLIENTE", loginButton: "🔓 Accedi", loginMechanic: "🔧 Meccanico: Usa il PIN",
+        loginClient: "👤 Cliente: Usa il codice ricevuto o clicca sul link", loginRealtimeSync: "☁️ Dati sincronizzati in tempo reale",
         mechanicMode: "Modo Meccanico", clientMode: "Modalità Cliente - Solo Lettura", logout: "Esci", back: "Indietro",
-        newVehicle: "Nuovo Veicolo", addVehicle: "Aggiungi Veicolo", plate: "Targa", brand: "Marca", model: "Modello",
-        year: "Anno", mileage: "Chilometraggio", vehicles: "Veicoli", noVehicles: "Nessun veicolo registrato",
+        newVehicle: "➕ Nuovo Veicolo", addVehicle: "Aggiungi Veicolo", plate: "TARGA", brand: "Marca", model: "Modello",
+        year: "Anno", mileage: "Chilometraggio", vehicles: "🚗 Veicoli", noVehicles: "Nessun veicolo registrato",
         noVehiclesFound: "Nessun veicolo trovato", search: "Cerca veicolo...", shareAccess: "Condividi Accesso Cliente",
         vehicle: "Veicolo", directLink: "Link diretto", manualCode: "Codice manuale", copyLink: "Copia Link",
         sendWhatsApp: "Invia via WhatsApp", sendEmail: "Invia via Email", close: "Chiudi",
@@ -268,6 +287,7 @@
         csvExported: "CSV esportato", linkCopied: "Link copiato negli appunti", disconnected: "Disconnesso",
         logoutConfirm: "Sei sicuro di voler uscire?", interventions: "interventi", required: "*",
         selectBrand: "Seleziona Marca", selectModel: "Seleziona Modello", otherModel: "Altro (specificare)",
+        other: "Altro",
         appointments: "Appuntamenti", newAppointment: "Nuovo Appuntamento", appointmentDate: "Data Appuntamento", 
         appointmentTime: "Ora", appointmentType: "Tipo Intervento", appointmentNotes: "Note Appuntamento", 
         status: "Stato", statusBooked: "Prenotato", statusCompleted: "Completato", statusCancelled: "Cancellato",
@@ -291,7 +311,7 @@
         reminders: "Promemoria", reminderOilChange: "Prossimo tagliando", reminderInspection: "Prossima revisione",
         reminderInsurance: "Assicurazione in scadenza", days: "giorni", plateInvalid: "Formato targa non valido",
         emailInvalid: "Email non valida", phoneInvalid: "Telefono non valido", stats: "Statistiche", partsLabel: "Ricambi:",
-        thisMonth: "Questo Mese", clientInfo: "Informazioni cliente",
+        thisMonth: "Questo Mese",         clientInfo: "👤 Informazioni cliente",
         clientName: "Nome cliente", clientPhone: "Telefono", clientEmail: "Email",
         selectBrandFirst: "Seleziona prima una marca", optional: "(opzionale)",
         photoUploadHint: "Puoi scattare foto o selezionarle dalla galleria",
@@ -301,7 +321,11 @@
     };
 
     let currentLang = localStorage.getItem('app_language') || 'it';
-    function t(key) { return translations[currentLang][key] || translations.it[key] || key; }
+    function t(key) { 
+      const translation = translations[currentLang] && translations[currentLang][key];
+      if (translation) return translation;
+      return translations.it[key] || key;
+    }
     function setLanguage(lang) { currentLang = lang; localStorage.setItem('app_language', lang); render(); }
     function getLanguageSelector() {
       return `<select onchange="setLanguage(this.value)" class="px-3 py-2 rounded-lg text-sm font-semibold bg-gray-700 text-white border-2 border-gray-600 hover:bg-gray-600 cursor-pointer" style="background-color: rgba(55,65,81,0.95) !important; color: white !important;">
@@ -1245,9 +1269,9 @@
                   <label class="block text-sm font-semibold mb-2" style="color:#e5e7eb !important">${t('loginTitle')}</label>
                   <input type="text" id="loginCode" placeholder="${t('loginPlaceholder')}" class="w-full px-4 py-3 border-2 rounded-lg text-center text-xl font-bold uppercase" onkeypress="if(event.key==='Enter') login()" autofocus>
                 </div>
-                <button onclick="login()" class="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700">🔓 ${t('loginButton')}</button>
+                <button onclick="login()" class="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700">${t('loginButton')}</button>
                 <div class="mt-6 pt-6 border-t border-gray-700">
-                  <p class="text-xs text-gray-500 text-center">🔧 <strong>${t('loginMechanic')}</strong><br>👤 <strong>${t('loginClient')}</strong><br>☁️ <strong>${t('loginRealtimeSync')}</strong></p>
+                  <p class="text-xs text-gray-500 text-center"><strong>${t('loginMechanic')}</strong><br><strong>${t('loginClient')}</strong><br><strong>${t('loginRealtimeSync')}</strong></p>
                 </div>
               </div>
             </div>
@@ -1281,14 +1305,14 @@
             </div>
             <div class="p-4">
               <div class="bg-white rounded-lg shadow p-4 mb-4">
-                <h2 class="text-lg font-bold mb-3">➕ ${t('newVehicle')}</h2>
+                <h2 class="text-lg font-bold mb-3">${t('newVehicle')}</h2>
                 <div class="space-y-3">
                   <input type="text" id="newVehicleTarga" placeholder="${t('plate')} *" class="w-full px-3 py-2 border rounded uppercase font-bold">
                   
                   <select id="newVehicleMarca" onchange="updateModels()" class="w-full px-3 py-2 border rounded bg-gray-800 text-white border-gray-600">
                     <option value="">${t('selectBrand')}</option>
                     ${brandOptions}
-                    <option value="other">--- Altro ---</option>
+                    <option value="other">--- ${t('other')} ---</option>
                   </select>
                   
                   <div style="position: relative;">
@@ -1304,7 +1328,7 @@
                   </div>
                   
                   <div class="border-t border-gray-600 pt-3 mt-3">
-                    <h3 class="text-sm font-semibold text-gray-300 mb-2">👤 ${t('clientInfo')}</h3>
+                    <h3 class="text-sm font-semibold text-gray-300 mb-2">${t('clientInfo')}</h3>
                     <input type="text" id="clienteNome" placeholder="${t('clientName')} *" class="w-full px-3 py-2 border rounded mb-2">
                     <input type="tel" id="clienteTelefono" placeholder="${t('clientPhone')}" class="w-full px-3 py-2 border rounded mb-2">
                     <input type="email" id="clienteEmail" placeholder="${t('clientEmail')}" class="w-full px-3 py-2 border rounded">
