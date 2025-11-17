@@ -131,6 +131,88 @@
     const MECHANIC_PIN = "1234";
     const USE_FIREBASE = true;
 
+    // ✅ TYPES D'INTERVENTIONS COMPLETS
+    const interventionTypes = {
+      it: {
+        "Tagliando": "🔧 Tagliando",
+        "Riparazione Generale": "🔨 Riparazione Generale",
+        "Revisione": "📋 Revisione",
+        "Cambio Gomme": "🚗 Cambio Gomme",
+        "Equilibratura": "⚖️ Equilibratura",
+        "Convergenza": "📐 Convergenza",
+        "Cambio Olio": "🛢️ Cambio Olio",
+        "Filtri": "🌬️ Filtri (aria/olio/carburante)",
+        "Freni": "🛑 Freni (pastiglie/dischi)",
+        "Batteria": "🔋 Batteria",
+        "Ammortizzatori": "🔩 Ammortizzatori",
+        "Frizione": "⚙️ Frizione",
+        "Cinghia Distribuzione": "🔗 Cinghia Distribuzione",
+        "Climatizzatore": "❄️ Climatizzatore",
+        "Impianto Elettrico": "⚡ Impianto Elettrico",
+        "Fari/Lampadine": "💡 Fari/Lampadine",
+        "Tergicristalli": "🌧️ Tergicristalli",
+        "Carburatore": "⛽ Carburatore",
+        "Iniezione": "💉 Iniezione",
+        "Scarico/Marmitta": "🔊 Scarico/Marmitta",
+        "Radiatore": "🌡️ Radiatore",
+        "Pompa Acqua": "💦 Pompa Acqua",
+        "Diagnosi": "🔍 Diagnosi Elettronica",
+        "Altro": "📝 Altro"
+      },
+      fr: {
+        "Tagliando": "🔧 Vidange",
+        "Riparazione Generale": "🔨 Réparation Générale",
+        "Revisione": "📋 Révision",
+        "Cambio Gomme": "🚗 Changement Pneus",
+        "Equilibratura": "⚖️ Équilibrage",
+        "Convergenza": "📐 Géométrie",
+        "Cambio Olio": "🛢️ Vidange Huile",
+        "Filtri": "🌬️ Filtres (air/huile/carburant)",
+        "Freni": "🛑 Freins (plaquettes/disques)",
+        "Batteria": "🔋 Batterie",
+        "Ammortizzatori": "🔩 Amortisseurs",
+        "Frizione": "⚙️ Embrayage",
+        "Cinghia Distribuzione": "🔗 Courroie Distribution",
+        "Climatizzatore": "❄️ Climatisation",
+        "Impianto Elettrico": "⚡ Installation Électrique",
+        "Fari/Lampadine": "💡 Phares/Ampoules",
+        "Tergicristalli": "🌧️ Essuie-glaces",
+        "Carburatore": "⛽ Carburateur",
+        "Iniezione": "💉 Injection",
+        "Scarico/Marmitta": "🔊 Échappement/Pot",
+        "Radiatore": "🌡️ Radiateur",
+        "Pompa Acqua": "💦 Pompe à Eau",
+        "Diagnosi": "🔍 Diagnostic Électronique",
+        "Altro": "📝 Autre"
+      },
+      en: {
+        "Tagliando": "🔧 Oil Change",
+        "Riparazione Generale": "🔨 General Repair",
+        "Revisione": "📋 Inspection",
+        "Cambio Gomme": "🚗 Tire Change",
+        "Equilibratura": "⚖️ Wheel Balancing",
+        "Convergenza": "📐 Wheel Alignment",
+        "Cambio Olio": "🛢️ Oil Change",
+        "Filtri": "🌬️ Filters (air/oil/fuel)",
+        "Freni": "🛑 Brakes (pads/discs)",
+        "Batteria": "🔋 Battery",
+        "Ammortizzatori": "🔩 Shock Absorbers",
+        "Frizione": "⚙️ Clutch",
+        "Cinghia Distribuzione": "🔗 Timing Belt",
+        "Climatizzatore": "❄️ Air Conditioning",
+        "Impianto Elettrico": "⚡ Electrical System",
+        "Fari/Lampadine": "💡 Lights/Bulbs",
+        "Tergicristalli": "🌧️ Wipers",
+        "Carburatore": "⛽ Carburetor",
+        "Iniezione": "💉 Injection",
+        "Scarico/Marmitta": "🔊 Exhaust/Muffler",
+        "Radiatore": "🌡️ Radiator",
+        "Pompa Acqua": "💦 Water Pump",
+        "Diagnosi": "🔍 Electronic Diagnosis",
+        "Altro": "📝 Other"
+      }
+    };
+
     const vehicleDatabase = {
       "Fiat": ["Panda", "500", "Punto", "Tipo", "Doblò", "500L", "500X", "124 Spider", "Multipla", "Bravo", "Stilo", "Croma", "Freemont", "Barchetta", "Coupe", "Ulysse", "Sedici", "Idea", "Linea", "Ducato"],
       "Alfa Romeo": ["Giulia", "Stelvio", "Giulietta", "Mito", "159", "147", "156", "166", "Brera", "Spider", "GT", "GTV", "164", "155", "33", "Alfasud", "Alfetta", "Giulietta Spider"],
@@ -175,7 +257,7 @@
         history: "Storico", noInterventions: "Nessun intervento registrato", date: "Data", type: "Tipo",
         description: "Descrizione", parts: "Ricambi", cost: "Costo", mechanic: "Meccanico", notes: "Note",
         save: "Salva", cancel: "Annulla", delete: "Eliminare", deleteConfirm: "Eliminare questo intervento?",
-        deleteVehicleConfirm: "Eliminare definitivamente il veicolo", selectType: "Seleziona...",
+        deleteVehicleConfirm: "Eliminare definitivamente il veicolo", selectType: "Seleziona tipo intervento...",
         interventionDetails: "Dettagli intervento...", partsExample: "Es: Pastiglie anteriori...",
         mechanicName: "Nome meccanico", observations: "Osservazioni, raccomandazioni...", exportCSV: "Esporta CSV",
         link: "Link", newButton: "Nuovo", vehicleNotFound: "Veicolo non trovato", backToLogin: "Torna all'accesso",
@@ -194,7 +276,7 @@
         generateInvoice: "Genera Fattura", invoice: "Fattura", estimate: "Preventivo", documentNum: "Numero Documento",
         documentDate: "Data Documento", customer: "Cliente", mechanicSignature: "Firma Meccanico", 
         customerSignature: "Firma Cliente", total: "Totale", vat: "IVA", totalVAT: "Totale IVA Inclusa",
-        notes: "Note", terms: "Condizioni: Pagamento alla consegna - Garanzia 12 mesi sui ricambi",
+        terms: "Condizioni: Pagamento alla consegna - Garanzia 12 mesi sui ricambi",
         thanks: "Grazie per la vostra fiducia!", invoiceType: "Tipo Documento", documentTypes: ["Fattura", "Preventivo", "Ricevuta"],
         generateGlobalInvoice: "Genera Fattura Totale", globalInvoice: "Fattura Completa",
         print: "Stampa", download: "Scarica PDF", invoiceGenerated: "PDF generato con successo", invoiceError: "Errore nella generazione del PDF",
@@ -209,158 +291,12 @@
         reminders: "Promemoria", reminderOilChange: "Prossimo tagliando", reminderInspection: "Prossima revisione",
         reminderInsurance: "Assicurazione in scadenza", days: "giorni", plateInvalid: "Formato targa non valido",
         emailInvalid: "Email non valida", phoneInvalid: "Telefono non valido", stats: "Statistiche", partsLabel: "Ricambi:",
-        thisMonth: "Questo Mese", total: "Totale",
-        typeOther: "Altro",
-        clientInfo: "Informazioni cliente",
-        clientName: "Nome cliente",
-        clientPhone: "Telefono",
-        clientEmail: "Email",
-        selectBrandFirst: "Seleziona prima una marca",
-        optional: "(opzionale)",
+        thisMonth: "Questo Mese", clientInfo: "Informazioni cliente",
+        clientName: "Nome cliente", clientPhone: "Telefono", clientEmail: "Email",
+        selectBrandFirst: "Seleziona prima una marca", optional: "(opzionale)",
         photoUploadHint: "Puoi scattare foto o selezionarle dalla galleria",
-        serviceOilChange: "Tagliando",
-        serviceRepair: "Riparazione",
-        serviceInspection: "Revisione",
-        serviceTires: "Cambio gomme",
-        serviceOther: "Altro",
         realtimeActive: "Sincronizzazione tempo reale attiva",
-        syncingData: "Sincronizzazione dati...",
-        clientNotified: "Cliente notificato"
-      },
-      fr: {
-        appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Entrez le code:",
-        loginPlaceholder: "Code Mécanicien ou Client", loginButton: "Connexion", loginMechanic: "Mécanicien: Utilisez le PIN",
-        loginClient: "Client: Utilisez le code reçu ou cliquez sur le lien", loginRealtimeSync: "Données synchronisées en temps réel",
-        mechanicMode: "Mode Mécanicien", clientMode: "Mode Client - Lecture seule", logout: "Déconnexion", back: "Retour",
-        newVehicle: "Nouveau Véhicule", addVehicle: "Ajouter un Véhicule", plate: "Plaque", brand: "Marque", model: "Modèle",
-        year: "Année", mileage: "Kilométrage", vehicles: "Véhicules", noVehicles: "Aucun véhicule enregistré",
-        noVehiclesFound: "Aucun véhicule trouvé", search: "Rechercher un véhicule...", shareAccess: "Partager l'Accès Client",
-        vehicle: "Véhicule", directLink: "Lien direct", manualCode: "Code manuel", copyLink: "Copier le Lien",
-        sendWhatsApp: "Envoyer via WhatsApp", sendEmail: "Envoyer via Email", close: "Fermer",
-        realtimeMessage: "Données synchronisées sur Firebase | Accessible depuis n'importe quel appareil",
-        clientReadOnly: "Le client pourra uniquement consulter l'historique de ce véhicule", newIntervention: "Nouvelle Intervention",
-        history: "Historique", noInterventions: "Aucune intervention enregistrée", date: "Date", type: "Type",
-        description: "Description", parts: "Pièces", cost: "Coût", mechanic: "Mécanicien", notes: "Notes",
-        save: "Enregistrer", cancel: "Annuler", delete: "Supprimer", deleteConfirm: "Supprimer cette intervention?",
-        deleteVehicleConfirm: "Supprimer définitivement le véhicule", selectType: "Sélectionner...",
-        interventionDetails: "Détails de l'intervention...", partsExample: "Ex: Plaquettes avant...",
-        mechanicName: "Nom du mécanicien", observations: "Observations, recommandations...", exportCSV: "Exporter CSV",
-        link: "Lien", newButton: "Nouveau", vehicleNotFound: "Véhicule non trouvé", backToLogin: "Retour à la connexion",
-        accessDenied: "Accès refusé", plateRequired: "Plaque obligatoire", vehicleExists: "Véhicule déjà existant",
-        typeDescRequired: "Type et description obligatoires", invalidCode: "Code non valide",
-        mechanicAccess: "Accès mécanicien", welcome: "Bienvenue", autoAccess: "Accès automatique effectué",
-        linkInvalid: "Lien non valide ou expiré", vehicleAdded: "Véhicule ajouté avec succès", dataSaved: "Données sauvegardées",
-        csvExported: "CSV exporté", linkCopied: "Lien copié dans le presse-papiers", disconnected: "Déconnecté",
-        logoutConfirm: "Êtes-vous sûr de vouloir vous déconnecter?", interventions: "interventions", required: "*",
-        selectBrand: "Sélectionner Marque", selectModel: "Sélectionner Modèle", otherModel: "Autre (spécifier)",
-        appointments: "Rendez-vous", newAppointment: "Nouveau Rendez-vous", appointmentDate: "Date RDV",
-        appointmentTime: "Heure", appointmentType: "Type d'intervention", appointmentNotes: "Notes RDV",
-        status: "Statut", statusBooked: "Réservé", statusCompleted: "Terminé", statusCancelled: "Annulé",
-        addAppointment: "Ajouter RDV", noAppointments: "Aucun rendez-vous programmé",
-        appointmentAdded: "Rendez-vous ajouté", appointmentDeleted: "Rendez-vous supprimé",
-        generateInvoice: "Générer Facture", invoice: "Facture", estimate: "Devis", documentNum: "Numéro Document",
-        documentDate: "Date Document", customer: "Client", mechanicSignature: "Signature Mécanicien", 
-        customerSignature: "Signature Client", total: "Total", vat: "TVA", totalVAT: "Total TVA Incluse",
-        notes: "Notes", terms: "Conditions: Paiement à la livraison - Garantie 12 mois sur pièces",
-        thanks: "Merci pour votre confiance!", invoiceType: "Type Document", documentTypes: ["Facture", "Devis", "Reçu"],
-        generateGlobalInvoice: "Générer Facture Totale", globalInvoice: "Facture Complète",
-        print: "Imprimer", download: "Télécharger PDF", invoiceGenerated: "PDF généré avec succès", invoiceError: "Erreur dans la génération du PDF",
-        whatsappMessage: "Bonjour! Voici le lien pour consulter l'historique de votre véhicule",
-        emailSubject: "Historique Véhicule", emailBody: "Cher Client,\n\nVoici le lien pour consulter l'historique complet de votre véhicule",
-        emailBodyEnd: "Vous pourrez visualiser toutes les interventions effectuées sur votre véhicule à tout moment.\n\nCordialement,\nTano Evoluzione - Bosch Car Service", shareMessage: "Tano Evoluzione - Bosch Car Service",
-        dashboard: "Tableau de Bord", totalRevenue: "Revenus Totaux", monthlyStats: "Statistiques Mensuelles", topCustomers: "Top Clients",
-        searchAdvanced: "Recherche Avancée", searchByDate: "Date du", searchByType: "Type", searchByMechanic: "Mécanicien",
-        searchByCost: "Coût min", searchByCostMax: "Coût max", applyFilter: "Appliquer Filtres", resetFilter: "Réinitialiser",
-        noResults: "Aucun résultat", tags: "Tags", addTag: "Ajouter tag", tagUrgent: "Urgent", tagWarranty: "Garantie",
-        tagRecurring: "Récurrent", tagParts: "Attente Pièces", offlineMode: "Mode Hors Ligne", offlineMessage: "Données sauvées localement",
-        reminders: "Rappels", reminderOilChange: "Prochain vidange", reminderInspection: "Prochaine révision",
-        reminderInsurance: "Assurance à échéance", days: "jours", plateInvalid: "Format plaque non valide",
-        emailInvalid: "Email non valide", phoneInvalid: "Téléphone non valide", stats: "Statistiques", partsLabel: "Pièces :",
-        thisMonth: "Ce Mois", total: "Total",
-        typeOther: "Autre",
-        clientInfo: "Infos client",
-        clientName: "Nom client",
-        clientPhone: "Téléphone",
-        clientEmail: "Email",
-        selectBrandFirst: "Sélectionnez d'abord une marque",
-        optional: "(optionnel)",
-        photoUploadHint: "Vous pouvez prendre des photos ou les sélectionner depuis la galerie",
-        serviceOilChange: "Vidange",
-        serviceRepair: "Réparation",
-        serviceInspection: "Révision",
-        serviceTires: "Changement pneus",
-        serviceOther: "Autre",
-        realtimeActive: "Synchronisation temps réel active",
-        syncingData: "Synchronisation des données...",
-        clientNotified: "Client notifié"
-      },
-      en: {
-        appName: "Tano Evoluzione", appSubtitle: "Bosch car Service", loginTitle: "Enter the code:",
-        loginPlaceholder: "Mechanic or Client Code", loginButton: "Login", loginMechanic: "Mechanic: Use the PIN",
-        loginClient: "Client: Use the received code or click on the link", loginRealtimeSync: "Real-time synchronized data",
-        mechanicMode: "Mechanic Mode", clientMode: "Client Mode - Read Only", logout: "Logout", back: "Back",
-        newVehicle: "New Vehicle", addVehicle: "Add Vehicle", plate: "Plate", brand: "Brand", model: "Model",
-        year: "Year", mileage: "Mileage", vehicles: "Vehicles", noVehicles: "No vehicles registered",
-        noVehiclesFound: "No vehicles found", search: "Search vehicle...", shareAccess: "Share Client Access",
-        vehicle: "Vehicle", directLink: "Direct link", manualCode: "Manual code", copyLink: "Copy Link",
-        sendWhatsApp: "Send via WhatsApp", sendEmail: "Send via Email", close: "Close",
-        realtimeMessage: "Data synchronized on Firebase | Accessible from any device",
-        clientReadOnly: "The client will only be able to view the history of this vehicle", newIntervention: "New Intervention",
-        history: "History", noInterventions: "No interventions registered", date: "Date", type: "Type",
-        description: "Description", parts: "Parts", cost: "Cost", mechanic: "Mechanic", notes: "Notes",
-        save: "Save", cancel: "Cancel", delete: "Delete", deleteConfirm: "Delete this intervention?",
-        deleteVehicleConfirm: "Permanently delete the vehicle", selectType: "Select...",
-        interventionDetails: "Intervention details...", partsExample: "Ex: Front brake pads...",
-        mechanicName: "Mechanic name", observations: "Observations, recommendations...", exportCSV: "Export CSV",
-        link: "Link", newButton: "New", vehicleNotFound: "Vehicle not found", backToLogin: "Back to login",
-        accessDenied: "Access denied", plateRequired: "Plate required", vehicleExists: "Vehicle already exists",
-        typeDescRequired: "Type and description required", invalidCode: "Invalid code",
-        mechanicAccess: "Mechanic access", welcome: "Welcome", autoAccess: "Automatic access granted",
-        linkInvalid: "Invalid or expired link", vehicleAdded: "Vehicle added successfully", dataSaved: "Data saved",
-        csvExported: "CSV exported", linkCopied: "Link copied to clipboard", disconnected: "Disconnected",
-        logoutConfirm: "Are you sure you want to logout?", interventions: "interventions", required: "*",
-        selectBrand: "Select Brand", selectModel: "Select Model", otherModel: "Other (specify)",
-        appointments: "Appointments", newAppointment: "New Appointment", appointmentDate: "Appointment Date",
-        appointmentTime: "Time", appointmentType: "Service Type", appointmentNotes: "Appointment Notes",
-        status: "Status", statusBooked: "Booked", statusCompleted: "Completed", statusCancelled: "Cancelled",
-        addAppointment: "Add Appointment", noAppointments: "No appointments scheduled",
-        appointmentAdded: "Appointment added", appointmentDeleted: "Appointment deleted",
-        generateInvoice: "Generate Invoice", invoice: "Invoice", estimate: "Estimate", documentNum: "Document Number",
-        documentDate: "Document Date", customer: "Customer", mechanicSignature: "Mechanic Signature", 
-        customerSignature: "Customer Signature", total: "Total", vat: "VAT", totalVAT: "Total VAT Included",
-        notes: "Notes", terms: "Terms: Payment on delivery - 12 months warranty on parts",
-        thanks: "Thank you for your trust!", invoiceType: "Document Type", documentTypes: ["Invoice", "Estimate", "Receipt"],
-        generateGlobalInvoice: "Generate Total Invoice", globalInvoice: "Complete Invoice",
-        print: "Print", download: "Download PDF", invoiceGenerated: "PDF generated successfully", invoiceError: "Error generating PDF",
-        whatsappMessage: "Hello! Here is the link to view your vehicle's history",
-        emailSubject: "Vehicle History", emailBody: "Dear Customer,\n\nHere is the link to view the complete history of your vehicle",
-        emailBodyEnd: "You will be able to view all the interventions carried out on your vehicle at any time.\n\nBest regards,\nTano Evoluzione - Bosch Car Service", 
-        shareMessage: "Tano Evoluzione - Bosch Car Service",
-        dashboard: "Dashboard", totalRevenue: "Total Revenue", monthlyStats: "Monthly Stats", topCustomers: "Top Customers",
-        searchAdvanced: "Advanced Search", searchByDate: "Date from", searchByType: "Type", searchByMechanic: "Mechanic",
-        searchByCost: "Min cost", searchByCostMax: "Max cost", applyFilter: "Apply Filters", resetFilter: "Reset",
-        noResults: "No results", tags: "Tags", addTag: "Add tag", tagUrgent: "Urgent", tagWarranty: "Warranty",
-        tagRecurring: "Recurring", tagParts: "Waiting Parts", offlineMode: "Offline Mode", offlineMessage: "Data saved locally",
-        reminders: "Reminders", reminderOilChange: "Next oil change", reminderInspection: "Next inspection",
-        reminderInsurance: "Insurance expiry", days: "days", plateInvalid: "Invalid plate format",
-        emailInvalid: "Invalid email", phoneInvalid: "Invalid phone", stats: "Statistics", partsLabel: "Parts:",
-        thisMonth: "This Month", total: "Total",
-        typeOther: "Other",
-        clientInfo: "Client info",
-        clientName: "Client name",
-        clientPhone: "Phone",
-        clientEmail: "Email",
-        selectBrandFirst: "Select brand first",
-        optional: "(optional)",
-        photoUploadHint: "You can take photos or select from gallery",
-        serviceOilChange: "Oil Change",
-        serviceRepair: "Repair",
-        serviceInspection: "Inspection",
-        serviceTires: "Tire Change",
-        serviceOther: "Other",
-        realtimeActive: "Real-time sync active",
-        syncingData: "Syncing data...",
-        clientNotified: "Client notified"
+        syncingData: "Sincronizzazione dati...", clientNotified: "Cliente notificato"
       }
     };
 
@@ -373,6 +309,14 @@
         <option value="fr" ${currentLang === 'fr' ? 'selected' : ''}>🇫🇷 Français</option>
         <option value="en" ${currentLang === 'en' ? 'selected' : ''}>🇬🇧 English</option>
       </select>`;
+    }
+
+    // ✅ FONCTION POUR GÉNÉRER LA LISTE DES INTERVENTIONS
+    function getInterventionTypeOptions() {
+      const types = interventionTypes[currentLang] || interventionTypes.it;
+      return Object.entries(types).map(([key, label]) => 
+        `<option value="${key}">${label}</option>`
+      ).join('');
     }
 
     let vehicles = {}, currentVehicle = null, showAddForm = false, isMechanicMode = false, isClientMode = false;
@@ -388,7 +332,6 @@
       setTimeout(() => { notification.style.animation = 'slideIn 0.3s ease-out reverse'; setTimeout(() => notification.remove(), 300); }, 3000);
     }
 
-    // ✅ NOUVELLE FONCTION : Indicateur de synchronisation
     function showSyncIndicator(message = "🔄 Synchronisation...") {
       const existing = document.getElementById('syncIndicator');
       if (existing) existing.remove();
@@ -444,14 +387,12 @@
       }
     }
 
-    // ✅ FONCTION MODIFIÉE : Support du temps réel
     async function loadFromFirestore(targa, enableRealtime = false) {
       if (!USE_FIREBASE || !window.firebaseDB) return null;
       try {
         const { getDoc, doc, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
         
         if (enableRealtime) {
-          // ✅ Mode temps réel pour le client
           if (realtimeUnsubscribe) realtimeUnsubscribe();
           
           realtimeUnsubscribe = onSnapshot(doc(window.firebaseDB, 'vehicles', targa), (docSnap) => {
@@ -469,12 +410,10 @@
             showOfflineIndicator();
           });
           
-          // Retourner aussi les données initiales
           const docSnap = await getDoc(doc(window.firebaseDB, 'vehicles', targa));
           return docSnap.exists() ? docSnap.data() : null;
           
         } else {
-          // Mode normal : lecture unique
           const docSnap = await getDoc(doc(window.firebaseDB, 'vehicles', targa));
           return docSnap.exists() ? docSnap.data() : null;
         }
@@ -557,12 +496,10 @@
       return reminders;
     }
 
-    // ✅ FONCTION MODIFIÉE : Activation temps réel pour client
     async function login() {
       const code = document.getElementById('loginCode').value.trim();
       if (!code) return showNotification(`❌ ${t('invalidCode')}`, 'error');
       
-      // Login mécanicien
       if (code === MECHANIC_PIN) {
         isMechanicMode = true;
         isClientMode = false;
@@ -574,13 +511,11 @@
         return;
       }
       
-      // Login client
       const parts = code.toUpperCase().split('-');
       if (parts.length >= 2) {
         const year = parts[parts.length - 1];
         const targa = parts.slice(0, -1).join('-');
         
-        // ✅ Charger depuis Firebase avec temps réel
         const vehicleData = await loadFromFirestore(targa, true);
         
         if (vehicleData) {
@@ -726,7 +661,6 @@
       setTimeout(() => render(), 100);
     }
 
-    // ✅ FONCTION MODIFIÉE : Synchronisation améliorée
     async function addIntervento() {
       if (!isMechanicMode) return showNotification(`❌ ${t('accessDenied')}`, 'error');
       
@@ -763,12 +697,10 @@
         timestamp: new Date().toISOString() 
       };
       
-      // Ajouter localement
       vehicles[currentVehicle].interventi.unshift(intervento);
       if (km) vehicles[currentVehicle].chilometraggio = km;
       saveDataLocal();
       
-      // ✅ Synchroniser et attendre
       showSyncIndicator(`🔄 ${t('syncingData')}`);
       
       try {
@@ -1248,11 +1180,7 @@
                   <div><label class="block text-sm font-semibold mb-1">🔧 ${t('appointmentType')} *</label>
                     <select id="appointmentTipo" class="w-full px-3 py-2 border rounded">
                       <option value="">${t('selectType')}</option>
-                      <option value="Tagliando">${t('serviceOilChange')}</option>
-                      <option value="Riparazione">${t('serviceRepair')}</option>
-                      <option value="Revisione">${t('serviceInspection')}</option>
-                      <option value="Gomme">${t('serviceTires')}</option>
-                      <option value="Altro">${t('serviceOther')}</option>
+                      ${getInterventionTypeOptions()}
                     </select>
                   </div>
                   <div><label class="block text-sm font-semibold mb-1">📝 ${t('appointmentNotes')}</label><textarea id="appointmentNote" rows="3" placeholder="Note per l'appuntamento..." class="w-full px-3 py-2 border rounded"></textarea></div>
@@ -1360,7 +1288,7 @@
                   <select id="newVehicleMarca" onchange="updateModels()" class="w-full px-3 py-2 border rounded bg-gray-800 text-white border-gray-600">
                     <option value="">${t('selectBrand')}</option>
                     ${brandOptions}
-                    <option value="other">--- ${t('typeOther')} ---</option>
+                    <option value="other">--- Altro ---</option>
                   </select>
                   
                   <div style="position: relative;">
@@ -1449,7 +1377,6 @@
               </div>
             </div>
             <div class="p-4">
-              <!-- Section Appuntamenti -->
               <div class="bg-white rounded-lg shadow p-4 mb-4">
                 <div class="flex justify-between items-center mb-3">
                   <h2 class="text-xl font-bold text-white">📅 ${t('appointments')}</h2>
@@ -1498,9 +1425,9 @@
                       <div><label class="block text-sm font-semibold mb-1">🔧 ${t('searchByType')}</label>
                         <select id="filterType" onchange="filters.type=this.value" class="w-full px-3 py-2 border rounded">
                           <option value="">${t('selectType')}</option>
-                          <option value="Tagliando" ${filters.type === 'Tagliando' ? 'selected' : ''}>${t('serviceOilChange')}</option>
-                          <option value="Riparazione" ${filters.type === 'Riparazione' ? 'selected' : ''}>${t('serviceRepair')}</option>
-                          <option value="Revisione" ${filters.type === 'Revisione' ? 'selected' : ''}>${t('serviceInspection')}</option>
+                          ${Object.keys(interventionTypes.it).map(type => 
+                            `<option value="${type}" ${filters.type === type ? 'selected' : ''}>${type}</option>`
+                          ).join('')}
                         </select>
                       </div>
                       <div><label class="block text-sm font-semibold mb-1">👤 ${t('searchByMechanic')}</label><input type="text" id="filterMechanic" value="${filters.mechanic}" onchange="filters.mechanic=this.value" placeholder="${t('mechanicName')}" class="w-full px-3 py-2 border rounded"></div>
@@ -1569,11 +1496,7 @@
                   <div><label class="block text-sm font-semibold mb-1">🔧 ${t('type')} *</label>
                     <select id="interventoTipo" class="w-full px-3 py-2 border rounded">
                       <option value="">${t('selectType')}</option>
-                      <option value="Tagliando">${t('serviceOilChange')}</option>
-                      <option value="Riparazione">${t('serviceRepair')}</option>
-                      <option value="Revisione">${t('serviceInspection')}</option>
-                      <option value="Gomme">${t('serviceTires')}</option>
-                      <option value="Altro">${t('serviceOther')}</option>
+                      ${getInterventionTypeOptions()}
                     </select>
                   </div>
                   <div><label class="block text-sm font-semibold mb-1">📝 ${t('description')} *</label><textarea id="interventoDesc" rows="3" placeholder="${t('interventionDetails')}" class="w-full px-3 py-2 border rounded"></textarea></div>
@@ -1614,7 +1537,6 @@
       }
     }
 
-    // ✅ FONCTION MODIFIÉE : Init avec support temps réel client
     async function init() {
       loadDataLocal();
       const urlParams = new URLSearchParams(window.location.search);
@@ -1629,7 +1551,6 @@
           currentVehicle = targa;
           window.history.replaceState({}, document.title, window.location.pathname);
           
-          // ✅ Charger avec listener temps réel
           if (USE_FIREBASE) {
             if (!window.firebaseReady) {
               await new Promise(resolve => {
@@ -1651,11 +1572,9 @@
       
       render();
       
-      // Listeners online/offline
       window.addEventListener('online', () => {
         isOffline = false;
         showOfflineIndicator();
-        // ✅ Réactiver la sync si on revient en ligne
         if (isClientMode && currentVehicle && USE_FIREBASE) {
           loadFromFirestore(currentVehicle, true);
         }
@@ -1666,7 +1585,6 @@
         showOfflineIndicator();
       });
       
-      // Charger tous les véhicules pour le mécanicien
       if (USE_FIREBASE && !code) {
         if (!window.firebaseReady) {
           await new Promise(resolve => {
@@ -1675,6 +1593,26 @@
         }
       }
     }
+
+    window.setLanguage = setLanguage;
+    window.login = login;
+    window.logout = logout;
+    window.updateModels = updateModels;
+    window.handleModelChange = handleModelChange;
+    window.addVehicle = addVehicle;
+    window.addIntervento = addIntervento;
+    window.deleteIntervento = deleteIntervento;
+    window.deleteVehicle = deleteVehicle;
+    window.addAppointment = addAppointment;
+    window.deleteAppointment = deleteAppointment;
+    window.openShareModal = openShareModal;
+    window.copyLink = copyLink;
+    window.shareViaWhatsApp = shareViaWhatsApp;
+    window.shareViaEmail = shareViaEmail;
+    window.updateSearch = updateSearch;
+    window.exportToExcel = exportToExcel;
+    window.generateInvoice = generateInvoice;
+    window.render = render;
 
     init();
   </script>
