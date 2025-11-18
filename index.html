@@ -301,18 +301,6 @@
         serviceRepair: "Réparation",
         serviceInspection: "Révision",
         serviceTires: "Changement pneus",
-        serviceBrakes: "Freins",
-        serviceBattery: "Batterie",
-        serviceBulbs: "Ampoules",
-        serviceHeadlights: "Phares",
-        serviceExhaust: "Échappement",
-        serviceAirConditioning: "Climatisation",
-        serviceSuspension: "Suspensions",
-        serviceTransmission: "Transmission",
-        serviceCooling: "Refroidissement",
-        serviceElectrical: "Système électrique",
-        serviceBodywork: "Carrosserie",
-        serviceGlass: "Vitres",
         serviceOther: "Autre",
         realtimeActive: "Synchronisation temps réel active",
         syncingData: "Synchronisation des données...",
@@ -381,18 +369,6 @@
         serviceRepair: "Repair",
         serviceInspection: "Inspection",
         serviceTires: "Tire Change",
-        serviceBrakes: "Brakes",
-        serviceBattery: "Battery",
-        serviceBulbs: "Bulbs",
-        serviceHeadlights: "Headlights",
-        serviceExhaust: "Exhaust",
-        serviceAirConditioning: "Air Conditioning",
-        serviceSuspension: "Suspension",
-        serviceTransmission: "Transmission",
-        serviceCooling: "Cooling System",
-        serviceElectrical: "Electrical System",
-        serviceBodywork: "Bodywork",
-        serviceGlass: "Glass",
         serviceOther: "Other",
         realtimeActive: "Real-time sync active",
         syncingData: "Syncing data...",
@@ -770,8 +746,8 @@
       const previewImages = document.querySelectorAll('#photoPreview img');
       previewImages.forEach(img => photos.push(img.src));
       
-      if (!tipo) {
-        return showNotification(`❌ ${t('type')} ${t('required')}`, 'error');
+      if (!tipo || !descrizione) {
+        return showNotification(`❌ ${t('typeDescRequired')}`, 'error');
       }
       
       const intervento = { 
@@ -1276,18 +1252,6 @@
                       <option value="Riparazione">${t('serviceRepair')}</option>
                       <option value="Revisione">${t('serviceInspection')}</option>
                       <option value="Gomme">${t('serviceTires')}</option>
-                      <option value="Freni">${t('serviceBrakes')}</option>
-                      <option value="Batteria">${t('serviceBattery')}</option>
-                      <option value="Lampadine">${t('serviceBulbs')}</option>
-                      <option value="Fari">${t('serviceHeadlights')}</option>
-                      <option value="Scarico">${t('serviceExhaust')}</option>
-                      <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
-                      <option value="Sospensioni">${t('serviceSuspension')}</option>
-                      <option value="Trasmissione">${t('serviceTransmission')}</option>
-                      <option value="Raffreddamento">${t('serviceCooling')}</option>
-                      <option value="Impianto elettrico">${t('serviceElectrical')}</option>
-                      <option value="Carrozzeria">${t('serviceBodywork')}</option>
-                      <option value="Cristalli">${t('serviceGlass')}</option>
                       <option value="Altro">${t('serviceOther')}</option>
                     </select>
                   </div>
@@ -1608,22 +1572,10 @@
                       <option value="Riparazione">${t('serviceRepair')}</option>
                       <option value="Revisione">${t('serviceInspection')}</option>
                       <option value="Gomme">${t('serviceTires')}</option>
-                      <option value="Freni">${t('serviceBrakes')}</option>
-                      <option value="Batteria">${t('serviceBattery')}</option>
-                      <option value="Lampadine">${t('serviceBulbs')}</option>
-                      <option value="Fari">${t('serviceHeadlights')}</option>
-                      <option value="Scarico">${t('serviceExhaust')}</option>
-                      <option value="Climatizzazione">${t('serviceAirConditioning')}</option>
-                      <option value="Sospensioni">${t('serviceSuspension')}</option>
-                      <option value="Trasmissione">${t('serviceTransmission')}</option>
-                      <option value="Raffreddamento">${t('serviceCooling')}</option>
-                      <option value="Impianto elettrico">${t('serviceElectrical')}</option>
-                      <option value="Carrozzeria">${t('serviceBodywork')}</option>
-                      <option value="Cristalli">${t('serviceGlass')}</option>
                       <option value="Altro">${t('serviceOther')}</option>
                     </select>
                   </div>
-                  <div><label class="block text-sm font-semibold mb-1">📝 ${t('description')} ${t('optional')}</label><textarea id="interventoDesc" rows="3" placeholder="${t('interventionDetails')}" class="w-full px-3 py-2 border rounded"></textarea></div>
+                  <div><label class="block text-sm font-semibold mb-1">📝 ${t('description')} *</label><textarea id="interventoDesc" rows="3" placeholder="${t('interventionDetails')}" class="w-full px-3 py-2 border rounded"></textarea></div>
                   <div><label class="block text-sm font-semibold mb-1">🔩 ${t('parts')}</label><input type="text" id="interventoRicambi" placeholder="${t('partsExample')}" class="w-full px-3 py-2 border rounded"></div>
                   <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-sm font-semibold mb-1">💰 ${t('cost')} (€)</label><input type="number" id="interventoCosto" step="0.01" placeholder="0.00" class="w-full px-3 py-2 border rounded"></div>
